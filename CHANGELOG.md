@@ -5,6 +5,16 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v2.9.1] 2026-07-12 — Report tab redesign (sparkline, rings, insights)
+
+### Improvements
+- **Modernised Report tab** — iPhone-style bento tiles with rounded corners, soft shadows, tabular-numeric values and uppercase labels.
+- **Daily-spend sparkline** in the total-spent tile — pink gradient area chart of each day's spending, with a "Daily spend" caption, month/day axis labels at each end, and a working tooltip showing the date and that day's total on tap/hover.
+- **Progress rings** — the budget % and top-category tiles now use conic-gradient rings (colour shifts green→amber→red as budget fills) instead of plain numbers.
+- **Insights section** — up to 4 auto-generated cards below the grid: spend vs last month, top category share, budget pace projection (on track / over), amount spent together, and biggest expense. All computed from the current month's data.
+
+---
+
 ## [v2.9.0] 2026-07-12 — New Report tab (bento-style dashboard)
 
 ### New features

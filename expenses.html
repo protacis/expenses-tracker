@@ -169,16 +169,17 @@
     .cat-budget-label-small{font-size:11px;color:var(--sub);white-space:nowrap}
 
     /* Report (bento) */
-    .bento-period{font-size:16px;font-weight:700;margin-bottom:12px}
-    .bento-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-    .bento-tile{background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:center;min-height:92px}
+    .bento-period{font-size:20px;font-weight:700;margin-bottom:14px;letter-spacing:-.01em}
+    .bento-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+    .bento-tile{background:var(--surface);border-radius:24px;padding:16px;display:flex;flex-direction:column;justify-content:center;min-height:92px;box-shadow:0 1px 1px rgba(0,0,0,.12),0 10px 24px -18px rgba(0,0,0,.6);position:relative;overflow:hidden}
     .bento-tile.span2{grid-column:span 2}
     .bento-tile.accent{background:linear-gradient(135deg,rgba(99,102,241,.28),rgba(99,102,241,.08));border:1px solid rgba(99,102,241,.35)}
+    .bento-tile.pink{background:linear-gradient(135deg,rgba(236,72,153,.32),rgba(168,85,247,.1));border:1px solid rgba(236,72,153,.35)}
     .bento-tile.warn{background:linear-gradient(135deg,rgba(239,68,68,.24),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.35)}
     .bento-icon{font-size:20px;margin-bottom:8px;line-height:1}
-    .bento-value{font-size:24px;font-weight:700;line-height:1.15}
-    .bento-value.big{font-size:34px}
-    .bento-label{font-size:12px;color:var(--sub);margin-top:4px}
+    .bento-value{font-size:24px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+    .bento-value.big{font-size:36px;letter-spacing:-.03em}
+    .bento-label{font-size:11.5px;color:var(--sub);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
     .bento-sub{font-size:12px;margin-top:6px;font-weight:600}
     .bento-mini-row{display:flex;align-items:center;gap:10px;padding:6px 0}
     .bento-mini-name{flex:0 0 auto;min-width:64px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -187,6 +188,23 @@
     .bento-mini-amount{flex:0 0 auto;font-size:13px;font-weight:600}
     .bento-empty{grid-column:span 2;text-align:center;color:var(--sub);padding:24px 0;font-size:14px}
     .fx-note{font-size:11px;color:var(--sub);text-align:center}
+    .bento-spark-cap{font-size:11px;color:var(--sub);margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .bento-spark-wrap{position:relative;width:100%;height:52px;margin-top:4px}
+    .bento-spark{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+    .bento-spark-axis{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-top:3px;font-variant-numeric:tabular-nums}
+    .bento-ring-row{display:flex;align-items:center;gap:12px}
+    .bento-ring-wrap{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .5s ease}
+    .bento-ring-inner{width:40px;height:40px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:17px}
+    .bento-ring-text{min-width:0;flex:1}
+    .bento-ring-text .bento-value{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Report: insights */
+    .insights-title{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px}
+    .insight-card{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border-radius:20px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 1px rgba(0,0,0,.12),0 8px 20px -16px rgba(0,0,0,.6)}
+    .insight-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .insight-body{flex:1;min-width:0}
+    .insight-title{font-size:14px;font-weight:700;margin-bottom:2px}
+    .insight-sub{font-size:12.5px;color:var(--sub);line-height:1.4}
 
     /* Settings accordion */
     .acc-item{border-bottom:1px solid var(--border)}
@@ -435,6 +453,7 @@
   <div id="view-report" class="view">
     <div class="bento-period" id="report-period"></div>
     <div class="bento-grid" id="report-grid"></div>
+    <div id="report-insights"></div>
   </div>
 
   <!-- Settings -->
@@ -550,7 +569,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v2.9.0</strong> · deployed <strong>2026-07-12 10:16</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v2.9.1</strong> · deployed <strong>2026-07-12 19:33</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -808,7 +827,7 @@ let selectedWho = null, splitDetails = [], editSplitDetails = [], recSplitDetail
 let editCat = 'food', editCur = 'AED', editWho = null;
 let recCat = 'food', recWho = null;
 let editState = null, recEditId = null;
-let pieChart = null, trendsChart = null;
+let pieChart = null, trendsChart = null, reportSparkChart = null;
 let filterCat = null, filterUser = null;
 let statsFilterCat = null, statsFilterUser = null;
 const TOGETHER_FILTER = '__together__';
@@ -1413,7 +1432,7 @@ async function renderHome() {
       </div>
     </div>
     <button class="btn-primary" onclick="switchView('add')" style="font-size:17px">＋ Add Expense</button>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:18px">v2.9.0 · 2026-07-12 10:16</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:18px">v2.9.1 · 2026-07-12 19:33</p>
   `;
 
   updateNotifBadge();
@@ -1429,33 +1448,45 @@ async function renderReport() {
   const items=Object.values((homeY===currentYear&&homeM===currentMonth)?listExpenses:await loadMonth(homeY,homeM));
   $('report-period').textContent=`${MONTHS[homeM-1]} ${homeY}`;
 
+  if(reportSparkChart){reportSparkChart.destroy();reportSparkChart=null;}
+
   if(!items.length){
     $('report-grid').innerHTML='<div class="bento-empty">No expenses yet this month</div>';
+    $('report-insights').innerHTML='';
     return;
   }
 
   const totalEur=items.reduce((s,e)=>s+splitAwareEur(e,primCur),0);
   const daysPassed=now.getDate();
   const avgDayEur=daysPassed>0?totalEur/daysPassed:0;
+  const daysInMonth=new Date(homeY,homeM,0).getDate();
+
+  const dayTotals=Array(daysPassed).fill(0);
+  items.forEach(e=>{
+    const d=parseInt((e.date||'').split('-')[2]||'0',10);
+    if(d>=1&&d<=daysPassed) dayTotals[d-1]+=splitAwareEur(e,primCur);
+  });
 
   let prevM=homeM-1, prevY=homeY; if(prevM<1){prevM=12;prevY--;}
   const prevAllItems=Object.values(await loadMonth(prevY,prevM));
   const prevItems=prevAllItems.filter(e=>parseInt((e.date||'').split('-')[2]||'99')<=daysPassed);
   const prevEur=prevItems.reduce((s,e)=>s+splitAwareEur(e,primCur),0);
-  let trendHtml='';
+  let trendHtml='', trendUp=null, trendPct=0;
   if(prevEur>0){
-    const diff=totalEur-prevEur, pct=Math.round(Math.abs(diff)/prevEur*100), up=diff>0;
-    trendHtml=`<div class="bento-sub" style="color:${up?'var(--danger)':'var(--success)'}">${up?'↑':'↓'} ${pct}% vs last month</div>`;
+    const diff=totalEur-prevEur; trendPct=Math.round(Math.abs(diff)/prevEur*100); trendUp=diff>0;
+    trendHtml=`<div class="bento-sub" style="color:${trendUp?'var(--danger)':'var(--success)'}">${trendUp?'↑':'↓'} ${trendPct}% vs last month</div>`;
   }
 
   const budget=config.budget||0;
   const budgetPct=budget>0?Math.min(eurToReport(totalEur)/budget,1):0;
   const budgetOver=budget>0&&eurToReport(totalEur)>budget;
+  const ringColor=budgetOver?'var(--danger)':budgetPct>0.7?'var(--warning)':'var(--success)';
 
   const byCat={};
   items.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+splitAwareEur(e,primCur); });
   const [topCatId,topCatEur]=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
   const topCat=catMap[topCatId]||catMap.other;
+  const topCatPct=totalEur?Math.round(topCatEur/totalEur*100):0;
 
   const togetherEur=items.filter(e=>e.split&&e.split.length).reduce((s,e)=>s+splitAwareEur(e,primCur),0);
 
@@ -1471,22 +1502,33 @@ async function renderReport() {
   const maxPersonEur=personEntries.length?personEntries[0][1]:0;
 
   const tiles=[];
-  tiles.push(`<div class="bento-tile span2 accent">
+  tiles.push(`<div class="bento-tile span2 pink">
     <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
     <div class="bento-value big">${fmtReport(totalEur)}</div>
     ${trendHtml}
+    ${daysPassed>1?`<div class="bento-spark-cap">Daily spend</div>
+    <div class="bento-spark-wrap"><canvas class="bento-spark" id="report-spark"></canvas></div>
+    <div class="bento-spark-axis"><span>${MONTHS[homeM-1].slice(0,3)} 1</span><span>${MONTHS[homeM-1].slice(0,3)} ${daysPassed}</span></div>`:''}
   </div>`);
   if(budget>0){
-    tiles.push(`<div class="bento-tile${budgetOver?' warn':''}">
-      <div class="bento-icon">🎯</div>
-      <div class="bento-value">${Math.round(budgetPct*100)}%</div>
-      <div class="bento-label">of budget${budgetOver?' — over!':''}</div>
+    tiles.push(`<div class="bento-tile">
+      <div class="bento-ring-row">
+        <div class="bento-ring-wrap" style="background:conic-gradient(${ringColor} ${Math.round(budgetPct*360)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">🎯</div></div>
+        <div class="bento-ring-text">
+          <div class="bento-value">${Math.round(budgetPct*100)}%</div>
+          <div class="bento-label">of budget${budgetOver?' — over!':''}</div>
+        </div>
+      </div>
     </div>`);
   }
-  tiles.push(`<div class="bento-tile" style="background:${topCat.color}26;border:1px solid ${topCat.color}55">
-    <div class="bento-icon">${topCat.icon}</div>
-    <div class="bento-value" style="font-size:17px">${escHtml(topCat.label)}</div>
-    <div class="bento-label">top category · ${fmtReport(topCatEur)}</div>
+  tiles.push(`<div class="bento-tile">
+    <div class="bento-ring-row">
+      <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
+      <div class="bento-ring-text">
+        <div class="bento-value">${escHtml(topCat.label)}</div>
+        <div class="bento-label">${topCatPct}% · top cat.</div>
+      </div>
+    </div>
   </div>`);
   tiles.push(`<div class="bento-tile">
     <div class="bento-icon">📅</div>
@@ -1518,6 +1560,31 @@ async function renderReport() {
   }
 
   $('report-grid').innerHTML=tiles.join('');
+
+  if(daysPassed>1 && $('report-spark')){
+    const sparkMonth=MONTHS[homeM-1].slice(0,3);
+    reportSparkChart=new Chart($('report-spark'),{type:'line',data:{labels:dayTotals.map((_,i)=>i+1),datasets:[{data:dayTotals.map(v=>eurToReport(v)),borderColor:'#ec4899',borderWidth:2,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#ec4899',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.35,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,52);g.addColorStop(0,'rgba(236,72,153,.4)');g.addColorStop(1,'rgba(236,72,153,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:true,displayColors:false,padding:8,callbacks:{title:its=>`${sparkMonth} ${its[0].label}`,label:ctx=>fmt(ctx.raw,primCur)+' spent'}}},scales:{x:{display:false},y:{display:false}}}});
+  }
+
+  const insights=[];
+  const insightCard=(icon,color,title,sub)=>`<div class="insight-card"><div class="insight-icon" style="background:${color}22;color:${color}">${icon}</div><div class="insight-body"><div class="insight-title">${title}</div><div class="insight-sub">${sub}</div></div></div>`;
+
+  if(prevEur>0){
+    insights.push(insightCard(trendUp?'📈':'📉', trendUp?'var(--danger)':'var(--success)', `${trendPct}% ${trendUp?'more':'less'} than last month`, `${fmtReport(totalEur)} spent so far vs ${fmtReport(prevEur)} by this point in ${MONTHS[prevM-1]}.`));
+  }
+  insights.push(insightCard(topCat.icon, topCat.color, `${escHtml(topCat.label)} is your top category`, `${topCatPct}% of this month's spending — ${fmtReport(topCatEur)}.`));
+  if(budget>0){
+    const projectedEur=daysPassed>0?(totalEur/daysPassed)*daysInMonth:0;
+    const projectedReport=eurToReport(projectedEur);
+    const overPace=projectedReport>budget;
+    insights.push(insightCard(overPace?'⚠️':'✅', overPace?'var(--danger)':'var(--success)', overPace?'On pace to go over budget':'On pace to stay under budget', `At this rate you'll spend about ${fmt(projectedReport,primCur)} by month end (budget ${fmt(budget,primCur)}).`));
+  }
+  if(togetherEur>0){
+    insights.push(insightCard('🤝','var(--accent)', `${fmtReport(togetherEur)} spent together`, `${Math.round(togetherEur/totalEur*100)}% of this month's spending was shared.`));
+  }
+  insights.push(insightCard(catMap[biggest.cat]?.icon||'💳','var(--accent)', `Biggest expense: ${fmtReport(biggestEur)}`, `${escHtml(biggest.desc||catMap[biggest.cat]?.label||'Expense')}${biggest.date?` · ${fmtDate(biggest.date)}`:''}`));
+
+  $('report-insights').innerHTML = insights.length ? `<div class="insights-title">Insights</div>${insights.slice(0,4).join('')}` : '';
 }
 
 // ─── Activity (changes by other users) ───
@@ -2499,7 +2566,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '10:16';
+const _THIS_VERSION = '19:33';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())

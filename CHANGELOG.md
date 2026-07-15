@@ -5,6 +5,13 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v2.9.2] 2026-07-15 — Fix: Stats "by person" filter now split-aware
+
+### Fixes
+- **Stats person filter counted full split amounts** — filtering Stats by a person showed the full amount of every shared expense they participated in (including the other people's shares) in the total, pie chart, category breakdown, by-person list, and monthly trend. Now split expenses are reduced to just the selected person's share, so the numbers reflect what that person actually spent.
+
+---
+
 ## [v2.9.1] 2026-07-12 — Report tab redesign (sparkline, rings, insights)
 
 ### Improvements

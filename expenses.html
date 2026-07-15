@@ -569,7 +569,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v2.9.1</strong> · deployed <strong>2026-07-12 19:33</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v2.9.2</strong> · deployed <strong>2026-07-15 07:57</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -1432,7 +1432,7 @@ async function renderHome() {
       </div>
     </div>
     <button class="btn-primary" onclick="switchView('add')" style="font-size:17px">＋ Add Expense</button>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:18px">v2.9.1 · 2026-07-12 19:33</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:18px">v2.9.2 · 2026-07-15 07:57</p>
   `;
 
   updateNotifBadge();
@@ -1958,7 +1958,16 @@ window.setStatsFilterUser=function(id){statsFilterUser=id;buildStatsFilters();re
 function applyStatsFilters(items) {
   let r=items;
   if(statsFilterCat) r=r.filter(e=>e.cat===statsFilterCat);
-  if(statsFilterUser) r=r.filter(e=>e.split?e.split.some(s=>s.userId===statsFilterUser):resolveUserId(e.who)===statsFilterUser);
+  if(statsFilterUser){
+    r=r.filter(e=>e.split?e.split.some(s=>s.userId===statsFilterUser):resolveUserId(e.who)===statsFilterUser);
+    // For split expenses, count only this person's share — otherwise totals/pie/
+    // category would include the other participants' portions too.
+    r=r.map(e=>{
+      if(!e.split) return e;
+      const share=e.split.filter(s=>s.userId===statsFilterUser).reduce((s,sp)=>s+sp.amount,0);
+      return {...e, amount:share, split:[{userId:statsFilterUser, amount:share}]};
+    });
+  }
   return r;
 }
 
@@ -2566,7 +2575,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '19:33';
+const _THIS_VERSION = '07:57';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())

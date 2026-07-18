@@ -206,6 +206,14 @@
     .insight-title{font-size:14px;font-weight:700;margin-bottom:2px}
     .insight-sub{font-size:12.5px;color:var(--sub);line-height:1.4}
 
+    /* Tags (hashtags) */
+    .tags-chips{display:flex;flex-wrap:wrap;margin-top:8px}
+    .tags-chips:empty{margin-top:0}
+    .tag-chip{display:inline-flex;align-items:center;gap:2px;background:rgba(99,102,241,.15);color:var(--accent);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;margin:0 6px 6px 0}
+    .tag-chip button{border:none;background:none;color:inherit;font-size:16px;line-height:1;cursor:pointer;padding:0 0 0 2px}
+    .expense-tags{display:flex;flex-wrap:wrap;margin-top:4px}
+    .tag-chip.mini{font-size:10.5px;font-weight:600;padding:1px 8px;margin:0 5px 0 0}
+
     /* Settings accordion */
     .acc-item{border-bottom:1px solid var(--border)}
     .acc-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;border:none;background:transparent;color:var(--text);font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;text-align:left}
@@ -401,6 +409,13 @@
     <div class="section-label">Description</div>
     <div class="input-group" style="margin-bottom:10px;max-width:none"><input type="text" id="desc-input" placeholder="e.g. Carrefour, fuel…" autocomplete="off" autocorrect="off" list="desc-suggestions"></div>
     <datalist id="desc-suggestions"></datalist>
+    <div class="section-label">Store</div>
+    <div class="input-group" style="margin-bottom:10px;max-width:none"><input type="text" id="merchant-input" placeholder="e.g. Carrefour, Spinneys…" autocomplete="off" autocorrect="off" list="merchant-suggestions"></div>
+    <datalist id="merchant-suggestions"></datalist>
+    <div class="section-label">Tags</div>
+    <div class="input-group" style="margin-bottom:4px;max-width:none"><input type="text" id="tags-input" placeholder="e.g. brunch with friends — Enter to add" autocomplete="off" autocorrect="off" list="tag-suggestions"></div>
+    <datalist id="tag-suggestions"></datalist>
+    <div class="tags-chips" id="add-tags-chips" style="margin-bottom:10px"></div>
     <div class="section-label">Date</div>
     <div class="input-group" style="margin-bottom:14px;max-width:none"><input type="date" id="date-input"></div>
     <button class="btn-primary" id="btn-save-expense" style="max-width:none">Save</button>
@@ -651,6 +666,11 @@
   </div>
   <div class="section-label">Description</div>
   <div class="input-group" style="margin-bottom:12px"><input type="text" id="edit-desc" autocomplete="off" autocorrect="off" placeholder="Description" list="desc-suggestions"></div>
+  <div class="section-label">Store</div>
+  <div class="input-group" style="margin-bottom:12px"><input type="text" id="edit-merchant" autocomplete="off" autocorrect="off" placeholder="e.g. Carrefour" list="merchant-suggestions"></div>
+  <div class="section-label">Tags</div>
+  <div class="input-group" style="margin-bottom:4px"><input type="text" id="edit-tags-input" autocomplete="off" autocorrect="off" placeholder="Enter to add" list="tag-suggestions"></div>
+  <div class="tags-chips" id="edit-tags-chips" style="margin-bottom:12px"></div>
   <div class="section-label">Date</div>
   <div class="input-group" style="margin-bottom:24px"><input type="date" id="edit-date"></div>
   <div style="display:flex;gap:10px">
@@ -832,6 +852,8 @@ let filterCat = null, filterUser = null;
 let statsFilterCat = null, statsFilterUser = null;
 const TOGETHER_FILTER = '__together__';
 let descHistory = {};
+let merchantHistory = {}, tagHistory = {};
+let addTags = [], editTags = [];
 let pinEntry = '';
 let notifications = [];
 let lastSeen = 0;
@@ -1060,6 +1082,7 @@ function launchApp() {
   $('amount-input').addEventListener('focus', function(){ this.select(); });
   $('amount-input').addEventListener('input', ()=>{ if(selectedWho==='split') buildSplitRows('split-user-rows','add'); });
   $('desc-input').addEventListener('input', function(){ applyDescMatch(this.value); });
+  setupTagInput('add'); setupTagInput('edit');
   $('btn-prev-month').addEventListener('click',()=>changeListPeriod(-1));
   $('btn-next-month').addEventListener('click',()=>changeListPeriod(+1));
   setupListModeToggle();
@@ -1281,20 +1304,67 @@ function collapseAllAcc() {
   });
 }
 
-// ─── Description autocomplete ───
+// ─── Description / store / tag autocomplete ───
 function mergeDescHistory(items) {
   items.forEach(e=>{
-    if(!e.desc) return;
-    const key=e.desc.trim().toLowerCase(); if(!key) return;
-    const existing=descHistory[key];
-    if(!existing || (e.ts||0)>=existing.ts) descHistory[key]={desc:e.desc,cat:e.cat,currency:e.currency,amount:e.amount,ts:e.ts||0};
+    if(e.desc){
+      const key=e.desc.trim().toLowerCase();
+      if(key){ const existing=descHistory[key];
+        if(!existing || (e.ts||0)>=existing.ts) descHistory[key]={desc:e.desc,cat:e.cat,currency:e.currency,amount:e.amount,ts:e.ts||0}; }
+    }
+    if(e.merchant){
+      const key=e.merchant.trim().toLowerCase();
+      if(key){ const existing=merchantHistory[key];
+        if(!existing || (e.ts||0)>=existing.ts) merchantHistory[key]={merchant:e.merchant,ts:e.ts||0}; }
+    }
+    if(Array.isArray(e.tags)) e.tags.forEach(t=>{
+      const key=String(t).trim().toLowerCase();
+      if(key){ const existing=tagHistory[key];
+        if(!existing || (e.ts||0)>=existing.ts) tagHistory[key]={tag:t,ts:e.ts||0}; }
+    });
   });
-  refreshDescDatalist();
+  refreshDescDatalist(); refreshMerchantDatalist(); refreshTagDatalist();
 }
 function refreshDescDatalist() {
   const dl=$('desc-suggestions'); if(!dl) return;
   const opts=Object.values(descHistory).sort((a,b)=>b.ts-a.ts).slice(0,40);
   dl.innerHTML=opts.map(o=>`<option value="${escHtml(o.desc)}">`).join('');
+}
+function refreshMerchantDatalist() {
+  const dl=$('merchant-suggestions'); if(!dl) return;
+  const opts=Object.values(merchantHistory).sort((a,b)=>b.ts-a.ts).slice(0,40);
+  dl.innerHTML=opts.map(o=>`<option value="${escHtml(o.merchant)}">`).join('');
+}
+function refreshTagDatalist() {
+  const dl=$('tag-suggestions'); if(!dl) return;
+  const opts=Object.values(tagHistory).sort((a,b)=>b.ts-a.ts).slice(0,60);
+  dl.innerHTML=opts.map(o=>`<option value="${escHtml(o.tag)}">`).join('');
+}
+
+// ─── Tag chips ───
+function tagsFor(ctx){ return ctx==='edit'?editTags:addTags; }
+function setTags(ctx,arr){ if(ctx==='edit') editTags=arr; else addTags=arr; }
+function renderTagChips(ctx){
+  const wrap=$(ctx==='edit'?'edit-tags-chips':'add-tags-chips'); if(!wrap) return;
+  wrap.innerHTML=tagsFor(ctx).map((t,i)=>`<span class="tag-chip">#${escHtml(t)}<button type="button" onclick="removeTag('${ctx}',${i})">×</button></span>`).join('');
+}
+window.removeTag=function(ctx,i){ const a=tagsFor(ctx).slice(); a.splice(i,1); setTags(ctx,a); renderTagChips(ctx); };
+function commitTag(ctx){
+  const inp=$(ctx==='edit'?'edit-tags-input':'tags-input'); if(!inp) return;
+  const v=(inp.value||'').replace(/^#+/,'').trim();
+  inp.value='';
+  if(!v) return;
+  const a=tagsFor(ctx);
+  if(!a.some(t=>t.toLowerCase()===v.toLowerCase())){ a.push(v); setTags(ctx,a); renderTagChips(ctx); }
+}
+function setupTagInput(ctx){
+  const inp=$(ctx==='edit'?'edit-tags-input':'tags-input'); if(!inp) return;
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===','){ e.preventDefault(); commitTag(ctx); }
+    else if(e.key==='Backspace' && !inp.value){ const a=tagsFor(ctx); if(a.length){ a.pop(); setTags(ctx,a); renderTagChips(ctx); } }
+  });
+  inp.addEventListener('change',()=>commitTag(ctx));
+  inp.addEventListener('blur',()=>commitTag(ctx));
 }
 function applyDescMatch(desc) {
   const match=descHistory[desc.trim().toLowerCase()]; if(!match) return;
@@ -1734,7 +1804,11 @@ async function saveExpense() {
   if(dateVal>today()&&!confirm(`The date you entered (${fmtDate(dateVal)}) is in the future. Are you sure?`)){return;}
   const [y,m]=dateVal.split('-').map(Number);
   const desc=$('desc-input').value.trim()||(catMap[selectedCat]?.label||selectedCat);
+  commitTag('add');
+  const merchant=$('merchant-input').value.trim();
   const expData={amount,desc,cat:selectedCat,currency:selectedCur,date:dateVal,ts:Date.now(),addedBy:activeUserId};
+  if(merchant) expData.merchant=merchant;
+  if(addTags.length) expData.tags=addTags.slice();
   if(selectedWho==='split'){
     const sel=splitDetails.filter(s=>s.selected);
     if(sel.length<2){showToast('⚠️ Select at least 2 people');return;}
@@ -1747,6 +1821,7 @@ async function saveExpense() {
   await fref(`expenses/${y}/${m}`).push(expData);
   showToast('✓ Saved!');
   $('amount-input').value=''; $('desc-input').value=''; $('date-input').value=today();
+  $('merchant-input').value=''; addTags=[]; renderTagChips('add');
   splitDetails=[]; $('split-panel').style.display='none';
   selectedWho=activeUsers()[0]?.id||null;
   buildWhoSelector('who-selector',selectedWho,'add');
@@ -1791,6 +1866,8 @@ window.openEditModal=function(year,month,id) {
   }
   buildWhoSelector('edit-who-selector',editWho,'edit');
   $('edit-desc').value=exp.desc||''; $('edit-date').value=exp.date||today();
+  $('edit-merchant').value=exp.merchant||'';
+  editTags=Array.isArray(exp.tags)?exp.tags.slice():[]; $('edit-tags-input').value=''; renderTagChips('edit');
   $('edit-scrim').classList.add('open'); $('edit-modal').classList.add('open');
 };
 
@@ -1803,8 +1880,12 @@ async function saveEdit() {
   const dateVal=$('edit-date').value||today();
   const [y,m]=dateVal.split('-').map(Number);
   const desc=$('edit-desc').value.trim()||(catMap[editCat]?.label||editCat);
+  commitTag('edit');
+  const merchant=$('edit-merchant').value.trim();
   const {year,month,id}=editState;
   const expData={amount,desc,cat:editCat,currency:editCur,date:dateVal};
+  expData.merchant = merchant || null;
+  expData.tags = editTags.length ? editTags.slice() : null;
   if(editWho==='split'){
     const sel=editSplitDetails.filter(s=>s.selected);
     expData.split=sel.map(s=>({userId:s.userId,amount:s.amount,pct:s.pct})); delete expData.who;
@@ -1894,7 +1975,7 @@ function renderListFiltered() {
   updateListTitle();
   const q=($('list-search')?.value||'').trim().toLowerCase();
   let entries=listRawItems;
-  if(q) entries=entries.filter(e=>(e.desc||'').toLowerCase().includes(q)||(catMap[e.cat]?.label||'').toLowerCase().includes(q));
+  if(q) entries=entries.filter(e=>(e.desc||'').toLowerCase().includes(q)||(catMap[e.cat]?.label||'').toLowerCase().includes(q)||(e.merchant||'').toLowerCase().includes(q)||(Array.isArray(e.tags)&&e.tags.some(t=>t.toLowerCase().includes(q))));
   if(filterCat) entries=entries.filter(e=>e.cat===filterCat);
   if(filterUser===TOGETHER_FILTER) entries=entries.filter(e=>!!e.split);
   else if(filterUser) entries=entries.filter(e=>e.split?e.split.some(s=>s.userId===filterUser):resolveUserId(e.who)===filterUser);
@@ -1929,9 +2010,11 @@ function renderList(items,isFiltered=false) {
       const cat=catMap[e.cat]||catMap.other, cur=e.currency||primCur;
       const isSplit=!!e.split;
       const whoLine=isSplit?`🔀 ${e.split.map(s=>getUserName(s.userId)).join(' · ')}`:`${getUserName(e.who)}`;
+      const metaBits=[cat.label]; if(e.merchant) metaBits.push('🏪 '+escHtml(e.merchant));
+      const tagsHtml=Array.isArray(e.tags)&&e.tags.length?`<div class="expense-tags">${e.tags.map(t=>`<span class="tag-chip mini">#${escHtml(t)}</span>`).join('')}</div>`:'';
       return`<div class="expense-item">
         <div class="expense-cat-icon" style="background:${cat.color}22">${cat.icon}</div>
-        <div class="expense-info"><div class="expense-desc">${escHtml(e.desc)}</div><div class="expense-meta">${cat.label}</div></div>
+        <div class="expense-info"><div class="expense-desc">${escHtml(e.desc)}</div><div class="expense-meta">${metaBits.join(' · ')}</div>${tagsHtml}</div>
         <div class="expense-right">
           <div class="expense-amount">${fmt(e.amount,cur)}</div>
           ${secondaryAmt(toEur(e.amount,cur),cur)?`<div class="expense-sub">(${secondaryAmt(toEur(e.amount,cur),cur)})</div>`:''}

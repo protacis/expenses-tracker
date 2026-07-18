@@ -462,6 +462,8 @@
     <div class="stats-card"><h3>Category breakdown</h3><div id="cat-breakdown"></div></div>
     <div class="stats-card"><h3 id="trends-title">Monthly trend (6 months)</h3><div class="chart-wrap"><canvas id="trends-chart"></canvas></div></div>
     <div class="stats-card"><h3>By person</h3><div id="person-breakdown"></div></div>
+    <div class="stats-card"><h3>By store</h3><div id="store-breakdown"></div></div>
+    <div class="stats-card"><h3>By tag</h3><div id="tag-breakdown"></div></div>
   </div>
 
   <!-- Report (bento) -->
@@ -848,7 +850,8 @@ let editCat = 'food', editCur = 'AED', editWho = null;
 let recCat = 'food', recWho = null;
 let editState = null, recEditId = null;
 let pieChart = null, trendsChart = null, reportSparkChart = null;
-let filterCat = null, filterUser = null;
+let filterCat = null, filterUser = null, filterTag = null;
+let listTagOptions = [];
 let statsFilterCat = null, statsFilterUser = null;
 const TOGETHER_FILTER = '__together__';
 let descHistory = {};
@@ -1912,10 +1915,18 @@ function buildListFilters() {
     <button class="who-chip${filterCat===cat.id?' active':''}" onclick="setFilterCat(${cat.id===null?'null':`'${cat.id}'`})">${cat.id?cat.icon+' ':'' }${cat.label}</button>`).join('');
   const userChips=[{id:null,name:'All'},...activeUsers(),{id:TOGETHER_FILTER,name:'🔀 Together'}].map(u=>`
     <button class="who-chip${filterUser===u.id?' active':''}" onclick="setFilterUser(${u.id===null?'null':`'${u.id}'`})">${escHtml(u.name)}</button>`).join('');
-  c.innerHTML=`<div class="who-chips" style="margin-bottom:6px">${catChips}</div><div class="who-chips">${userChips}</div>`;
+  listTagOptions=[...new Set(listRawItems.flatMap(e=>Array.isArray(e.tags)?e.tags:[]))].sort((a,b)=>a.localeCompare(b));
+  let tagRow='';
+  if(listTagOptions.length){
+    const allChip=`<button class="who-chip${filterTag===null?' active':''}" onclick="setFilterTag(-1)">All</button>`;
+    const tagChips=listTagOptions.map((t,i)=>`<button class="who-chip${filterTag===t?' active':''}" onclick="setFilterTag(${i})">#${escHtml(t)}</button>`).join('');
+    tagRow=`<div class="who-chips" style="margin-top:6px">${allChip}${tagChips}</div>`;
+  }
+  c.innerHTML=`<div class="who-chips" style="margin-bottom:6px">${catChips}</div><div class="who-chips">${userChips}</div>${tagRow}`;
 }
 window.setFilterCat=function(id){filterCat=id;buildListFilters();renderListFiltered();};
 window.setFilterUser=function(id){filterUser=id;buildListFilters();renderListFiltered();};
+window.setFilterTag=function(i){filterTag=i<0?null:(listTagOptions[i]??null);buildListFilters();renderListFiltered();};
 
 // ─── List period (Month / Year / Custom) ───
 function setupListModeToggle() {
@@ -1962,6 +1973,7 @@ async function loadListPeriod() {
   if(listMode==='year') listRawItems=await loadYearItems(currentYear);
   else if(listMode==='custom') listRawItems=await loadRangeItems($('list-custom-from')?.value,$('list-custom-to')?.value);
   else listRawItems=Object.entries(listExpenses).map(([id,e])=>({id,...e,_y:currentYear,_m:currentMonth}));
+  buildListFilters();
   renderListFiltered();
 }
 function updateListTitle() {
@@ -1979,7 +1991,8 @@ function renderListFiltered() {
   if(filterCat) entries=entries.filter(e=>e.cat===filterCat);
   if(filterUser===TOGETHER_FILTER) entries=entries.filter(e=>!!e.split);
   else if(filterUser) entries=entries.filter(e=>e.split?e.split.some(s=>s.userId===filterUser):resolveUserId(e.who)===filterUser);
-  renderList(entries,!!(q||filterCat||filterUser));
+  if(filterTag) entries=entries.filter(e=>Array.isArray(e.tags)&&e.tags.includes(filterTag));
+  renderList(entries,!!(q||filterCat||filterUser||filterTag));
 }
 function renderList(items,isFiltered=false) {
   const budget=config.budget||0, primCur=config.defaultCurrency||'AED';
@@ -2054,6 +2067,29 @@ function applyStatsFilters(items) {
   return r;
 }
 
+// Shared "By store" + "By tag" breakdowns (used by month and year stats).
+// amount is split-aware because applyStatsFilters already reduces split
+// expenses to the selected person's share when a person filter is active.
+function renderStoreTagBreakdowns(items, primCur, totalEur) {
+  const byStore={};
+  items.forEach(e=>{ if(e.merchant){ const k=e.merchant.trim(); if(k) byStore[k]=(byStore[k]||0)+toEur(e.amount,e.currency||primCur); } });
+  const storeEntries=Object.entries(byStore).sort((a,b)=>b[1]-a[1]);
+  const emptyStore='<div style="color:var(--sub);padding:12px 0;text-align:center;font-size:13px">No store info yet</div>';
+  $('store-breakdown').innerHTML=storeEntries.length?storeEntries.map(([name,eur])=>{
+    const pct=totalEur?Math.round(eur/totalEur*100):0;
+    return`<div class="cat-stat-row"><div class="cat-stat-dot" style="background:var(--accent)"></div><span class="cat-stat-name">🏪 ${escHtml(name)}</span><span class="cat-stat-amount">${fmtReport(eur)}${secondarySpan(eur,primCur)}</span><span class="cat-stat-pct">${pct}%</span></div>`;
+  }).join(''):emptyStore;
+
+  const byTag={};
+  items.forEach(e=>{ if(Array.isArray(e.tags)) e.tags.forEach(t=>{ const k=String(t).trim(); if(k) byTag[k]=(byTag[k]||0)+toEur(e.amount,e.currency||primCur); }); });
+  const tagEntries=Object.entries(byTag).sort((a,b)=>b[1]-a[1]);
+  const emptyTag='<div style="color:var(--sub);padding:12px 0;text-align:center;font-size:13px">No tags yet</div>';
+  $('tag-breakdown').innerHTML=tagEntries.length?tagEntries.map(([name,eur])=>{
+    const pct=totalEur?Math.round(eur/totalEur*100):0;
+    return`<div class="cat-stat-row"><span class="cat-stat-name"><span class="tag-chip mini">#${escHtml(name)}</span></span><span class="cat-stat-amount">${fmtReport(eur)}${secondarySpan(eur,primCur)}</span><span class="cat-stat-pct">${pct}%</span></div>`;
+  }).join(''):emptyTag;
+}
+
 async function renderStats(year,month) {
   if(statsMode==='year') { await renderYearStats(year); return; }
   $('month-title-s').textContent=`${MONTHS[month-1]} ${year}`;
@@ -2095,6 +2131,7 @@ async function renderStats(year,month) {
   const rateAed=(1/fxToEur.AED).toFixed(2), rateUsd=(1/fxToEur.USD).toFixed(4);
   const fxLabel=fxFetched?`live · updated at ${fmtFxTime()}`:'offline fallback';
   $('fx-note').textContent=`Rates (${fxLabel}): 1 EUR = AED ${rateAed} / USD ${rateUsd}`;
+  renderStoreTagBreakdowns(items, primCur, totalEur);
   renderTrends(year,month);
 }
 
@@ -2142,6 +2179,7 @@ async function renderYearStats(year) {
   const rateAed=(1/fxToEur.AED).toFixed(2), rateUsd=(1/fxToEur.USD).toFixed(4);
   const fxLabel=fxFetched?`live · updated at ${fmtFxTime()}`:'offline fallback';
   $('fx-note').textContent=`Rates (${fxLabel}): 1 EUR = AED ${rateAed} / USD ${rateUsd}`;
+  renderStoreTagBreakdowns(allItems, primCur, totalEur);
   if($('trends-title')) $('trends-title').textContent=`Monthly trend (${year})`;
   if(trendsChart){trendsChart.destroy();trendsChart=null;}
   const labels=months.map(m=>MONTHS[m-1].slice(0,3));

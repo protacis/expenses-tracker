@@ -5,6 +5,24 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.1.0] 2026-07-19 — FAB-based Add flow, category management, split-edit fix
+
+### Redesign
+- **Add moved off the tab bar** — replaced with a floating "+" button above the tab bar; opens a full-screen, 2-step Add flow with no scrolling on either step
+- **Step 1: Amount** — dedicated custom numpad (always visible, no device keyboard), Continue to proceed
+- **Step 2: Category + details** — category chips sorted by usage frequency (swipe to see more), plus who paid / description / store / tags / date in compact single-line fields, ending in Save
+- **Home: removed the Quick Add category shortcuts** — kept only the single "＋ Add Expense" button, later removed entirely once the FAB took over (see below)
+- **FAB only on Home/List** — the floating "+" button is hidden on Stats, Report and Settings, where adding an expense isn't the primary action
+- **Swipe between tabs** — swiping left/right anywhere on a screen (except charts, horizontal chip rows, inputs, or while a modal is open) moves to the next/previous tab in the bar, mirroring the tap animation
+
+### New features
+- **Settings: delete any category** — previously only custom categories could be deleted; now every category except "Other" can be removed. Existing expenses in a deleted category simply display as "Other" (nothing is lost)
+
+### Fixes
+- **Edit split validation** — editing a split expense no longer silently saves a mismatched split; now requires at least 2 selected people and the split total to match the expense amount, matching the Add flow
+
+---
+
 ## [v3.0.0] 2026-07-19 — Store & tags, By store/tag reports, new icons, tab motion
 
 ### New features

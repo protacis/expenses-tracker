@@ -5,6 +5,21 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.0.0] 2026-07-19 — Store & tags, By store/tag reports, new icons, tab motion
+
+### New features
+- **Store field** — every expense can record where it was bought (Add/Edit), with a custom styled autocomplete dropdown of past stores (keyboard + tap, replacing the native browser datalist popup)
+- **Tags field** — free-form hashtags per expense (e.g. `#brunch with friends`), chip-style entry with Enter/comma to add, autocomplete of past tags, duplicates ignored; shown as chips on List rows
+- **List: tag filter** — a chip row of every tag used in the current period; tap to filter, search also matches store and tags
+- **Stats: "By store" and "By tag" breakdowns** — split-aware, sorted by amount, in both Month and Year modes
+- **Add screen: top 5 categories by usage** — the category grid shows your 5 most-used categories first, with a "More"/"Less" toggle for the rest (auto-includes the currently selected category even if not in the top 5)
+
+### Redesign
+- **New tab bar icons** — replaced emoji with line-style SVG icons that switch to a filled variant on the active tab, plus a spring bounce animation on every tap
+- **Tab switch motion** — screens slide in horizontally (iOS-style) in the direction of travel through the tab order
+
+---
+
 ## [v2.9.2] 2026-07-15 — Fix: Stats "by person" filter now split-aware
 
 ### Fixes

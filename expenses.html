@@ -214,6 +214,15 @@
     .expense-tags{display:flex;flex-wrap:wrap;margin-top:4px}
     .tag-chip.mini{font-size:10.5px;font-weight:600;padding:1px 8px;margin:0 5px 0 0}
 
+    /* Custom autocomplete dropdown */
+    .ac-wrap{position:relative}
+    .ac-dropdown{position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-top:4px;max-height:210px;overflow-y:auto;box-shadow:0 10px 28px -8px rgba(0,0,0,.55);display:none}
+    .ac-dropdown.open{display:block}
+    .ac-item{padding:11px 14px;font-size:15px;cursor:pointer;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ac-item:last-child{border-bottom:none}
+    .ac-item.active{background:var(--accent);color:#fff}
+    .cat-chip.cat-more{border:2px dashed var(--border);color:var(--sub)}
+
     /* Settings accordion */
     .acc-item{border-bottom:1px solid var(--border)}
     .acc-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 0;border:none;background:transparent;color:var(--text);font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;text-align:left}
@@ -410,8 +419,7 @@
     <div class="input-group" style="margin-bottom:10px;max-width:none"><input type="text" id="desc-input" placeholder="e.g. Carrefour, fuel…" autocomplete="off" autocorrect="off" list="desc-suggestions"></div>
     <datalist id="desc-suggestions"></datalist>
     <div class="section-label">Store</div>
-    <div class="input-group" style="margin-bottom:10px;max-width:none"><input type="text" id="merchant-input" placeholder="e.g. Carrefour, Spinneys…" autocomplete="off" autocorrect="off" list="merchant-suggestions"></div>
-    <datalist id="merchant-suggestions"></datalist>
+    <div class="input-group ac-wrap" style="margin-bottom:10px;max-width:none"><input type="text" id="merchant-input" placeholder="e.g. Carrefour, Spinneys…" autocomplete="off" autocorrect="off"><div class="ac-dropdown" id="merchant-dropdown"></div></div>
     <div class="section-label">Tags</div>
     <div class="input-group" style="margin-bottom:4px;max-width:none"><input type="text" id="tags-input" placeholder="e.g. brunch with friends — Enter to add" autocomplete="off" autocorrect="off" list="tag-suggestions"></div>
     <datalist id="tag-suggestions"></datalist>
@@ -669,7 +677,7 @@
   <div class="section-label">Description</div>
   <div class="input-group" style="margin-bottom:12px"><input type="text" id="edit-desc" autocomplete="off" autocorrect="off" placeholder="Description" list="desc-suggestions"></div>
   <div class="section-label">Store</div>
-  <div class="input-group" style="margin-bottom:12px"><input type="text" id="edit-merchant" autocomplete="off" autocorrect="off" placeholder="e.g. Carrefour" list="merchant-suggestions"></div>
+  <div class="input-group ac-wrap" style="margin-bottom:12px"><input type="text" id="edit-merchant" autocomplete="off" autocorrect="off" placeholder="e.g. Carrefour"><div class="ac-dropdown" id="edit-merchant-dropdown"></div></div>
   <div class="section-label">Tags</div>
   <div class="input-group" style="margin-bottom:4px"><input type="text" id="edit-tags-input" autocomplete="off" autocorrect="off" placeholder="Enter to add" list="tag-suggestions"></div>
   <div class="tags-chips" id="edit-tags-chips" style="margin-bottom:12px"></div>
@@ -857,6 +865,7 @@ const TOGETHER_FILTER = '__together__';
 let descHistory = {};
 let merchantHistory = {}, tagHistory = {};
 let addTags = [], editTags = [];
+let catUsage = {}, catGridExpanded = false;
 let pinEntry = '';
 let notifications = [];
 let lastSeen = 0;
@@ -1086,6 +1095,8 @@ function launchApp() {
   $('amount-input').addEventListener('input', ()=>{ if(selectedWho==='split') buildSplitRows('split-user-rows','add'); });
   $('desc-input').addEventListener('input', function(){ applyDescMatch(this.value); });
   setupTagInput('add'); setupTagInput('edit');
+  setupAutocomplete('merchant-input','merchant-dropdown',merchantSuggestions);
+  setupAutocomplete('edit-merchant','edit-merchant-dropdown',merchantSuggestions);
   $('btn-prev-month').addEventListener('click',()=>changeListPeriod(-1));
   $('btn-next-month').addEventListener('click',()=>changeListPeriod(+1));
   setupListModeToggle();
@@ -1131,11 +1142,25 @@ function launchApp() {
 }
 
 // ─── Cat Grid ───
+function orderedCats() {
+  // Most-used first; ties keep the configured order (stable sort).
+  return [...activeCats].sort((a,b)=>(catUsage[b.id]||0)-(catUsage[a.id]||0));
+}
 function buildCatGrid(gridId, isEdit=false, isRec=false) {
   const grid=$(gridId); if(!grid) return;
   const current = isEdit?editCat:isRec?recCat:selectedCat;
+  const isAdd = !isEdit && !isRec;
   grid.innerHTML='';
-  activeCats.forEach(c=>{
+  let cats = isAdd ? orderedCats() : activeCats;
+  let showMore=false;
+  if(isAdd && !catGridExpanded){
+    let top=cats.slice(0,5);
+    // Always keep the currently selected category visible.
+    if(!top.some(c=>c.id===current)){ const sel=cats.find(c=>c.id===current); if(sel) top=[...top,sel]; }
+    showMore = activeCats.length > top.length;
+    cats = top;
+  }
+  cats.forEach(c=>{
     const el=document.createElement('div');
     el.className='cat-chip'+(c.id===current?' selected':'');
     el.dataset.cat=c.id;
@@ -1147,6 +1172,13 @@ function buildCatGrid(gridId, isEdit=false, isRec=false) {
     });
     grid.appendChild(el);
   });
+  if(isAdd && (showMore || catGridExpanded)){
+    const more=document.createElement('div');
+    more.className='cat-chip cat-more';
+    more.innerHTML=catGridExpanded?`<span class="cat-icon">▲</span><span>Less</span>`:`<span class="cat-icon">•••</span><span>More</span>`;
+    more.addEventListener('click',()=>{ catGridExpanded=!catGridExpanded; buildCatGrid(gridId,false,false); });
+    grid.appendChild(more);
+  }
 }
 
 // ─── Currency Toggle ───
@@ -1295,6 +1327,7 @@ function switchView(name) {
   $(`view-${name}`).classList.add('active');
   document.querySelector(`.tab-btn[data-view="${name}"]`).classList.add('active');
   if(name==='home')  renderHome();
+  if(name==='add')   buildCatGrid('cat-grid',false);
   if(name==='list')  { buildListFilters(); loadListPeriod(); }
   if(name==='stats') { buildStatsFilters(); renderStats(statsYear,statsMonth); }
   if(name==='report') renderReport();
@@ -1310,6 +1343,7 @@ function collapseAllAcc() {
 // ─── Description / store / tag autocomplete ───
 function mergeDescHistory(items) {
   items.forEach(e=>{
+    if(e.cat) catUsage[e.cat]=(catUsage[e.cat]||0)+1;
     if(e.desc){
       const key=e.desc.trim().toLowerCase();
       if(key){ const existing=descHistory[key];
@@ -1369,6 +1403,36 @@ function setupTagInput(ctx){
   inp.addEventListener('change',()=>commitTag(ctx));
   inp.addEventListener('blur',()=>commitTag(ctx));
 }
+
+// ─── Custom autocomplete dropdown (styled, replaces native datalist) ───
+function merchantSuggestions(){ return Object.values(merchantHistory).sort((a,b)=>b.ts-a.ts).map(o=>o.merchant); }
+function setupAutocomplete(inputId, dropId, getOptions){
+  const inp=$(inputId), drop=$(dropId); if(!inp||!drop) return;
+  let hi=-1, current=[];
+  function highlight(){ [...drop.children].forEach((el,i)=>el.classList.toggle('active',i===hi)); const el=drop.children[hi]; if(el) el.scrollIntoView({block:'nearest'}); }
+  function close(){ drop.classList.remove('open'); drop.innerHTML=''; hi=-1; }
+  function pick(i){ if(i<0||i>=current.length) return; inp.value=current[i]; close(); inp.dispatchEvent(new Event('input',{bubbles:true})); }
+  function refresh(){
+    const q=inp.value.trim().toLowerCase();
+    let opts=getOptions();
+    if(q) opts=opts.filter(o=>o.toLowerCase().includes(q) && o.toLowerCase()!==q);
+    current=opts.slice(0,8); hi=-1;
+    if(!current.length){ close(); return; }
+    drop.innerHTML=current.map((s,i)=>`<div class="ac-item" data-i="${i}">${escHtml(s)}</div>`).join('');
+    drop.classList.add('open');
+  }
+  inp.addEventListener('focus',refresh);
+  inp.addEventListener('input',refresh);
+  inp.addEventListener('keydown',e=>{
+    if(!drop.classList.contains('open')) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); hi=Math.min(hi+1,current.length-1); highlight(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); hi=Math.max(hi-1,0); highlight(); }
+    else if(e.key==='Enter'){ if(hi>=0){ e.preventDefault(); pick(hi); } }
+    else if(e.key==='Escape'){ close(); }
+  });
+  drop.addEventListener('mousedown',e=>{ const it=e.target.closest('.ac-item'); if(it){ e.preventDefault(); pick(+it.dataset.i); } });
+  inp.addEventListener('blur',()=>setTimeout(close,150));
+}
 function applyDescMatch(desc) {
   const match=descHistory[desc.trim().toLowerCase()]; if(!match) return;
   if(!parseAmt($('amount-input').value)) {
@@ -1381,7 +1445,7 @@ function applyDescMatch(desc) {
   }
   if(match.cat && catMap[match.cat]) {
     selectedCat=match.cat;
-    document.querySelectorAll('#cat-grid .cat-chip').forEach(el=>el.classList.toggle('selected',el.dataset.cat===selectedCat));
+    buildCatGrid('cat-grid',false);
   }
 }
 

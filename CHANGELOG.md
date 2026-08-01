@@ -5,7 +5,7 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
-## [v3.2.0] 2026-07-19 — Tips tracking, Home bento redesign, Report tab removed
+## [v3.2.0] 2026-08-01 — Tips tracking, Home bento redesign, Report tab removed
 
 ### New features
 - **Tip tracking** — an optional "Add tip" button sits right under the amount on both the Add screen and the Edit sheet; tapping it swaps the button for a tip field in the same spot. On Add it uses the same custom numpad (tap between the amount and tip fields to switch which one you're typing into — no device keyboard involved). Shows the running total at the same size as the main amount, plus what % of the bill the tip is, live as you type. The tip is folded into the expense's amount (so category/store/budget totals include it), while remaining visible on its own in Stats. Leaving the tip amount blank does not mark the expense as tipped

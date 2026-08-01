@@ -86,6 +86,16 @@
     .notif-badge{position:absolute;top:0;right:0;background:var(--danger);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 3px;display:none;align-items:center;justify-content:center}
     .notif-badge.visible{display:flex}
 
+    /* Privacy: blur amounts (bank-style eye toggle) */
+    .money{transition:filter .18s ease}
+    body.amounts-hidden .money{filter:blur(9px)}
+    .eye-btn{background:transparent;border:none;padding:2px;margin-left:6px;cursor:pointer;color:inherit;opacity:.7;vertical-align:middle;line-height:0}
+    .eye-btn:active{opacity:1}
+    .eye-btn svg{width:15px;height:15px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .eye-btn .eye-off{display:none}
+    body.amounts-hidden .eye-btn .eye-on{display:none}
+    body.amounts-hidden .eye-btn .eye-off{display:block}
+
     /* Add */
     .amount-wrap{display:flex;align-items:center;justify-content:center;padding:6px 0 10px;gap:8px}
     .amt-grid{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:8px;row-gap:8px}
@@ -587,7 +597,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.2.0</strong> · deployed <strong>2026-08-01 12:25</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.3.0</strong> · deployed <strong>2026-08-01 12:45</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -1156,8 +1166,25 @@ function showWho() {
 }
 
 // ─── Launch App ───
+// ─── Amount privacy (bank-style blur) ───
+// Stored per user per device: each family member gets their own preference,
+// and it survives reloads so the amounts stay hidden from the moment the
+// app opens rather than flashing before a toggle is applied.
+function amountPrivacyKey(){ return 'hideAmounts_'+(activeUserId||'default'); }
+function applyAmountPrivacy() {
+  let hidden=false;
+  try{ hidden=localStorage.getItem(amountPrivacyKey())==='1'; }catch{}
+  document.body.classList.toggle('amounts-hidden',hidden);
+}
+window.toggleAmountPrivacy=function() {
+  const hidden=!document.body.classList.contains('amounts-hidden');
+  document.body.classList.toggle('amounts-hidden',hidden);
+  try{ localStorage.setItem(amountPrivacyKey(),hidden?'1':'0'); }catch{}
+};
+
 function launchApp() {
   showScreen('screen-app');
+  applyAmountPrivacy();
   selectedCur = config.defaultCurrency||'AED';
   selectedWho = activeUsers()[0]?.id || null;
   activeCats = (config.categories && config.categories.length) ? config.categories : [...DEFAULT_CATS];
@@ -1807,13 +1834,13 @@ async function renderHome() {
   tiles.push(`<div class="bento-tile span2 pink">
     <div class="bento-split-row">
       <div style="min-width:0">
-        <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
-        <div class="bento-value" style="font-size:23px;white-space:nowrap">${fmt(totalPrim,primCur)}</div>
-        ${secAmt?`<div class="bento-sub" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
+        <div class="bento-label">Total spent — ${MONTHS[homeM-1]}<button class="eye-btn" onclick="toggleAmountPrivacy()" aria-label="Show or hide amounts"><svg class="eye-on" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5c1.9 0 3.5.6 4.9 1.4M22 12s-3.6 6.5-10 6.5c-1.9 0-3.6-.6-4.9-1.4"/><path d="M4 4l16 16"/></svg></button></div>
+        <div class="bento-value money" style="font-size:23px;white-space:nowrap">${fmt(totalPrim,primCur)}</div>
+        ${secAmt?`<div class="bento-sub money" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
         ${compHtml}
       </div>
       <div class="bento-corner-stats">
-        <div class="bento-corner-stat"><span class="bento-value" style="font-size:16px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
+        <div class="bento-corner-stat"><span class="bento-value money" style="font-size:16px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
         <div class="bento-corner-stat"><span class="bento-value" style="font-size:16px">${items.length}</span><span class="bento-label" style="margin-top:0">expense${items.length!==1?'s':''}</span></div>
       </div>
     </div>
@@ -1845,20 +1872,20 @@ async function renderHome() {
   if(topCats.length){
     tiles.push(`<div class="bento-tile span2">
       <div class="bento-label" style="margin-bottom:8px">Top 3 categories</div>
-      ${topCats.map(([id,amt])=>{const cat=catMap[id]||catMap.other;const pct=totalPrim?Math.round(amt/totalPrim*100):0;return`<div class="bento-mini-row"><span class="bento-mini-name">${cat.icon} ${escHtml(cat.label)}</span><div class="bento-mini-bar-wrap"><div class="bento-mini-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><span class="bento-mini-amount">${fmt(amt,primCur)}</span></div>`;}).join('')}
+      ${topCats.map(([id,amt])=>{const cat=catMap[id]||catMap.other;const pct=totalPrim?Math.round(amt/totalPrim*100):0;return`<div class="bento-mini-row"><span class="bento-mini-name">${cat.icon} ${escHtml(cat.label)}</span><div class="bento-mini-bar-wrap"><div class="bento-mini-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><span class="bento-mini-amount money">${fmt(amt,primCur)}</span></div>`;}).join('')}
     </div>`);
   }
   if(daysPassed>1){
     tiles.push(`<div class="bento-tile span2">
       <div class="bento-label">Daily spend</div>
-      <div class="bento-spark-wrap" style="height:80px"><canvas class="bento-spark" id="home-spark"></canvas></div>
+      <div class="bento-spark-wrap money" style="height:80px"><canvas class="bento-spark" id="home-spark"></canvas></div>
       <div class="bento-spark-axis"><span>${MONTHS[homeM-1].slice(0,3)} 1</span><span>${MONTHS[homeM-1].slice(0,3)} ${daysPassed}</span></div>
     </div>`);
   }
   if(biggest){
     tiles.push(`<div class="bento-tile">
       <div class="bento-icon">${catMap[biggest.cat]?.icon||'💳'}</div>
-      <div class="bento-value" style="font-size:18px">${fmt(biggestPrim,primCur)}</div>
+      <div class="bento-value money" style="font-size:18px">${fmt(biggestPrim,primCur)}</div>
       <div class="bento-label">biggest expense</div>
       <div class="bento-sub" style="margin-top:2px;color:var(--sub);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(biggest.desc||catMap[biggest.cat]?.label||'')}</div>
     </div>`);
@@ -1872,7 +1899,7 @@ async function renderHome() {
     const name2=p2?(users.find(u=>u.id===p2[0])?.name||'Other'):'';
     tiles.push(`<div class="bento-tile">
       <div class="bento-label">Spent together</div>
-      <div class="bento-value" style="font-size:16px;margin-top:2px">${fmt(togetherPrim,primCur)}</div>
+      <div class="bento-value money" style="font-size:16px;margin-top:2px">${fmt(togetherPrim,primCur)}</div>
       <div class="gauge-wrap sm">
         <div class="gauge-fill" style="background:conic-gradient(from 270deg, ${color1} 0deg, ${color1} ${gPct1*1.8}deg, ${color2} ${gPct1*1.8}deg, ${color2} 180deg, transparent 180deg, transparent 360deg)"></div>
         <div class="gauge-hole"></div>
@@ -1886,14 +1913,14 @@ async function renderHome() {
   if(pendingRecurring.length){
     tiles.push(`<div class="bento-tile span2 warn">
       <div class="bento-label">🔁 Recurring pending (${pendingRecurring.length})</div>
-      ${pendingRecurring.map(r=>`<div class="bento-mini-row"><span class="bento-mini-name" style="min-width:0;width:auto;flex:1">${catMap[r.cat]?.icon||''} ${escHtml(r.desc)}</span><span class="bento-mini-amount">${fmt(r.amount,r.currency||primCur)}</span></div>`).join('')}
+      ${pendingRecurring.map(r=>`<div class="bento-mini-row"><span class="bento-mini-name" style="min-width:0;width:auto;flex:1">${catMap[r.cat]?.icon||''} ${escHtml(r.desc)}</span><span class="bento-mini-amount money">${fmt(r.amount,r.currency||primCur)}</span></div>`).join('')}
       <button class="btn-primary" onclick="openNotifications()" style="margin-top:8px;font-size:14px;max-width:none">Review →</button>
     </div>`);
   }
 
   $('home-content').innerHTML=`
     <div class="bento-grid">${tiles.join('')}</div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.2.0 · 2026-08-01 12:25</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.3.0 · 2026-08-01 12:45</p>
   `;
 
   if(daysPassed>1 && $('home-spark')){
@@ -2967,7 +2994,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '12:25';
+const _THIS_VERSION = '12:45';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())

@@ -5,6 +5,14 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.3.0] 2026-08-01 — Hide amounts (privacy eye toggle)
+
+### New features
+- **Privacy toggle on Home** — a small eye button next to "Total spent" blurs every amount on the Home screen (total, secondary currency, avg/day, top categories, biggest expense, spent together, recurring, and the daily-spend chart), the way banking apps hide your balance. Tap again to reveal
+- The preference is **saved per family member, per device**, so if you turn it on it stays on the next time you open the app — the amounts are already blurred as the screen appears, rather than flashing first
+
+---
+
 ## [v3.2.0] 2026-08-01 — Tips tracking, Home bento redesign, Report tab removed
 
 ### New features

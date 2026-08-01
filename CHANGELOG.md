@@ -5,6 +5,16 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.4.0] 2026-08-01 — Customisable Home (drag to reorder, hide tiles)
+
+### New features
+- **Edit mode on Home** — a ✏️ button next to the bell puts the Home screen into edit mode, exactly like rearranging app icons on a phone: the tiles wiggle, you **drag them to reorder**, and a red × on each one hides it
+- **Hidden tiles tray** — hidden tiles collect in a tray under the grid during edit mode; tap one to bring it back
+- **Saved per family member** — each person's layout is stored on their own user record in Firebase, so it follows them across devices and doesn't affect anyone else. Tap Done (or just leave the Home tab) to save
+- Tiles added in future versions appear automatically rather than being hidden by an older saved layout
+
+---
+
 ## [v3.3.1] 2026-08-01 — Home tile layout tweaks
 
 ### Changes

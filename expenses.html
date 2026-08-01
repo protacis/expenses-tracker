@@ -94,6 +94,24 @@
     .eye-btn svg{width:15px;height:15px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .eye-btn.eye-lg svg{width:21px;height:21px}
     .total-row{display:flex;align-items:center;gap:4px}
+
+    /* Home edit mode — iOS-style wiggle + drag to reorder */
+    @keyframes tileWiggle{0%{transform:rotate(-.55deg)}50%{transform:rotate(.55deg)}100%{transform:rotate(-.55deg)}}
+    body.home-edit .bento-tile{animation:tileWiggle .26s ease-in-out infinite;touch-action:none;cursor:grab}
+    body.home-edit .bento-tile:nth-child(2n){animation-delay:-.13s}
+    body.home-edit .bento-tile.dragging{animation:none;opacity:.95;z-index:20;cursor:grabbing;box-shadow:0 12px 30px -6px rgba(0,0,0,.65);transition:none}
+    body.home-edit .eye-btn,body.home-edit .bento-tile button:not(.tile-remove){pointer-events:none}
+    .tile-remove{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:16px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:5;padding:0;font-family:inherit}
+    body.home-edit .tile-remove{display:flex}
+    .home-edit-bar{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1.5px dashed var(--accent);border-radius:14px;padding:10px 14px;margin-bottom:12px}
+    body.home-edit .home-edit-bar{display:flex}
+    .home-edit-bar span{font-size:12.5px;color:var(--sub);line-height:1.35}
+    .home-edit-done{flex-shrink:0;padding:7px 18px;border-radius:20px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+    .tray{display:none;margin-bottom:20px}
+    body.home-edit .tray{display:block}
+    .tray-label{font-size:11.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:8px}
+    .tray-chip{background:var(--surface2);border:1px dashed var(--border);color:var(--text);border-radius:20px;padding:7px 14px;font-family:inherit;font-size:13px;cursor:pointer;margin:0 6px 6px 0}
+    .tray-empty{font-size:12.5px;color:var(--sub)}
     .eye-btn .eye-off{display:none}
     body.amounts-hidden .eye-btn .eye-on{display:none}
     body.amounts-hidden .eye-btn .eye-off{display:block}
@@ -434,7 +452,10 @@
         <div class="home-greeting" id="home-greeting">Welcome!</div>
         <div class="home-period" id="home-period"></div>
       </div>
-      <button class="notif-btn" id="btn-notif" onclick="openNotifications()">🔔<span class="notif-badge" id="notif-badge"></span></button>
+      <div style="display:flex;align-items:center;gap:2px">
+        <button class="notif-btn" id="btn-home-edit" onclick="toggleHomeEdit()" aria-label="Edit home layout" style="font-size:17px">✏️</button>
+        <button class="notif-btn" id="btn-notif" onclick="openNotifications()">🔔<span class="notif-badge" id="notif-badge"></span></button>
+      </div>
     </div>
     <div id="home-content"></div>
   </div>
@@ -599,7 +620,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.3.1</strong> · deployed <strong>2026-08-01 13:24</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.4.0</strong> · deployed <strong>2026-08-01 13:49</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -1187,6 +1208,8 @@ window.toggleAmountPrivacy=function() {
 function launchApp() {
   showScreen('screen-app');
   applyAmountPrivacy();
+  // layout is per user — drop any cached copy from a previous sign-in
+  homeLayoutWorking=null; homeEditMode=false; document.body.classList.remove('home-edit');
   selectedCur = config.defaultCurrency||'AED';
   selectedWho = activeUsers()[0]?.id || null;
   activeCats = (config.categories && config.categories.length) ? config.categories : [...DEFAULT_CATS];
@@ -1536,6 +1559,7 @@ function setupTabs() {
 function switchView(name) {
   const prev=document.querySelector('.tab-btn.active')?.dataset.view;
   if(prev==='settings' && name!=='settings') collapseAllAcc();
+  if(prev==='home' && name!=='home' && homeEditMode){ homeEditMode=false; document.body.classList.remove('home-edit'); saveHomeLayout(); }
   const targetEl=$(`view-${name}`);
   if(prev && prev!==name){
     const prevIdx=TAB_ORDER.indexOf(prev), nextIdx=TAB_ORDER.indexOf(name);
@@ -1751,6 +1775,82 @@ async function changeStatsMonth(dir) {
 }
 
 // ─── Home ───
+// ─── Home layout (reorder / hide tiles, per user) ───
+const HOME_TILES=['total','budget','stats','topcats','daily','biggest','topcat','together','recurring'];
+const TILE_LABELS={total:'Total spent',budget:'Budget',stats:'Avg / day & count',topcats:'Top 3 categories',daily:'Daily spend chart',biggest:'Biggest expense',topcat:'Top category',together:'Spent together',recurring:'Recurring pending'};
+let homeEditMode=false, homeLayoutWorking=null;
+
+function getHomeLayout() {
+  if(homeLayoutWorking) return homeLayoutWorking;
+  const u=currentUser(), saved=(u&&u.homeLayout&&typeof u.homeLayout==='object')?u.homeLayout:null;
+  const savedOrder=Array.isArray(saved?.order)?saved.order.filter(k=>HOME_TILES.includes(k)):[];
+  // Tiles the saved layout never knew about (added in a later version) are
+  // appended and stay visible, so an old saved layout can't permanently
+  // hide something new.
+  const order=[...savedOrder,...HOME_TILES.filter(k=>!savedOrder.includes(k))];
+  const hidden=new Set(Array.isArray(saved?.hidden)?saved.hidden.filter(k=>HOME_TILES.includes(k)):[]);
+  homeLayoutWorking={order,hidden};
+  return homeLayoutWorking;
+}
+async function saveHomeLayout() {
+  const u=currentUser(); if(!u||!homeLayoutWorking) return;
+  u.homeLayout={order:homeLayoutWorking.order,hidden:[...homeLayoutWorking.hidden]};
+  try{ await fref('config/users').set(users); }catch(e){ showToast('⚠️ Could not save layout'); }
+}
+window.toggleHomeEdit=function() {
+  homeEditMode=!homeEditMode;
+  document.body.classList.toggle('home-edit',homeEditMode);
+  if(!homeEditMode) saveHomeLayout();
+  renderHome();
+};
+window.hideHomeTile=function(k){ getHomeLayout().hidden.add(k); renderHome(); };
+window.showHomeTile=function(k){ getHomeLayout().hidden.delete(k); renderHome(); };
+
+// Drag-to-reorder. Uses pointer events (works for touch and mouse) and moves
+// the dragged tile in the DOM as it passes over others, rebasing the drag
+// origin after each move so the tile doesn't jump under the finger.
+function setupTileDrag() {
+  const grid=document.querySelector('#home-content .bento-grid'); if(!grid) return;
+  let dragEl=null,pid=null,startX=0,startY=0,dragging=false;
+  grid.addEventListener('pointerdown',e=>{
+    if(!homeEditMode||e.target.closest('.tile-remove')) return;
+    const tile=e.target.closest('.bento-tile'); if(!tile) return;
+    dragEl=tile; pid=e.pointerId; startX=e.clientX; startY=e.clientY; dragging=false;
+  });
+  grid.addEventListener('pointermove',e=>{
+    if(!dragEl||e.pointerId!==pid) return;
+    const dx=e.clientX-startX, dy=e.clientY-startY;
+    if(!dragging){
+      if(Math.hypot(dx,dy)<7) return;           // let taps through
+      dragging=true; dragEl.classList.add('dragging');
+      try{ dragEl.setPointerCapture(pid); }catch{}
+    }
+    e.preventDefault();
+    dragEl.style.transform=`translate(${dx}px,${dy}px)`;
+    dragEl.style.pointerEvents='none';
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    dragEl.style.pointerEvents='';
+    const target=under&&under.closest('.bento-tile');
+    if(target&&target!==dragEl&&target.parentElement===grid){
+      const kids=[...grid.children];
+      if(kids.indexOf(dragEl)<kids.indexOf(target)) target.after(dragEl); else target.before(dragEl);
+      startX=e.clientX; startY=e.clientY; dragEl.style.transform='';
+    }
+  });
+  const end=()=>{
+    if(!dragEl) return;
+    if(dragging){
+      dragEl.classList.remove('dragging'); dragEl.style.transform='';
+      const lay=getHomeLayout();
+      const shown=[...grid.children].map(c=>c.dataset.key).filter(Boolean);
+      lay.order=[...shown,...lay.order.filter(k=>!shown.includes(k))];
+    }
+    dragEl=null; dragging=false; pid=null;
+  };
+  grid.addEventListener('pointerup',end);
+  grid.addEventListener('pointercancel',end);
+}
+
 async function renderHome() {
   const now=new Date(), h=now.getHours();
   const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
@@ -1832,8 +1932,10 @@ async function renderHome() {
     togetherPeople=[togetherPeople[0],[togetherPeople[1][0],togetherPeople[1][1]+restAmt]];
   }
 
-  const tiles=[];
-  tiles.push(`<div class="bento-tile span2 pink">
+  // Each tile is keyed so the user can reorder / hide them (see homeLayout).
+  const T={};
+  const rm=k=>`<button class="tile-remove" onclick="hideHomeTile('${k}')" aria-label="Hide tile">×</button>`;
+  T.total=`<div class="bento-tile span2 pink" data-key="total">${rm('total')}
     <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
     <div class="total-row">
       <span class="bento-value money" style="font-size:30px;white-space:nowrap">${fmt(totalPrim,primCur)}</span>
@@ -1841,9 +1943,9 @@ async function renderHome() {
     </div>
     ${secAmt?`<div class="bento-sub money" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
     ${compHtml}
-  </div>`);
+  </div>`;
   if(budget>0){
-    tiles.push(`<div class="bento-tile">
+    T.budget=`<div class="bento-tile" data-key="budget">${rm('budget')}
       <div class="bento-label" style="margin-bottom:8px">Budget</div>
       <div class="bento-ring-row">
         <div class="bento-ring-wrap" style="background:conic-gradient(${ringColor} ${Math.round(budgetPct*360)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">🎯</div></div>
@@ -1852,35 +1954,35 @@ async function renderHome() {
           ${budgetOver?'<div class="bento-sub" style="margin-top:0;color:var(--danger)">Over!</div>':''}
         </div>
       </div>
-    </div>`);
+    </div>`;
   }
-  tiles.push(`<div class="bento-tile">
+  T.stats=`<div class="bento-tile" data-key="stats">${rm('stats')}
     <div class="bento-corner-stat" style="justify-content:flex-start"><span class="bento-value money" style="font-size:19px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
     <div class="bento-corner-stat" style="justify-content:flex-start;margin-top:10px"><span class="bento-value" style="font-size:19px">${items.length}</span><span class="bento-label" style="margin-top:0">expense${items.length!==1?'s':''}</span></div>
-  </div>`);
+  </div>`;
   if(topCats.length){
-    tiles.push(`<div class="bento-tile span2">
+    T.topcats=`<div class="bento-tile span2" data-key="topcats">${rm('topcats')}
       <div class="bento-label" style="margin-bottom:8px">Top 3 categories</div>
       ${topCats.map(([id,amt])=>{const cat=catMap[id]||catMap.other;const pct=totalPrim?Math.round(amt/totalPrim*100):0;return`<div class="bento-mini-row"><span class="bento-mini-name">${cat.icon} ${escHtml(cat.label)}</span><div class="bento-mini-bar-wrap"><div class="bento-mini-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><span class="bento-mini-amount money">${fmt(amt,primCur)}</span></div>`;}).join('')}
-    </div>`);
+    </div>`;
   }
   if(daysPassed>1){
-    tiles.push(`<div class="bento-tile span2">
+    T.daily=`<div class="bento-tile span2" data-key="daily">${rm('daily')}
       <div class="bento-label">Daily spend</div>
       <div class="bento-spark-wrap money" style="height:80px"><canvas class="bento-spark" id="home-spark"></canvas></div>
       <div class="bento-spark-axis"><span>${MONTHS[homeM-1].slice(0,3)} 1</span><span>${MONTHS[homeM-1].slice(0,3)} ${daysPassed}</span></div>
-    </div>`);
+    </div>`;
   }
   if(biggest){
-    tiles.push(`<div class="bento-tile">
+    T.biggest=`<div class="bento-tile" data-key="biggest">${rm('biggest')}
       <div class="bento-icon">${catMap[biggest.cat]?.icon||'💳'}</div>
       <div class="bento-value money" style="font-size:18px">${fmt(biggestPrim,primCur)}</div>
       <div class="bento-label">biggest expense</div>
       <div class="bento-sub" style="margin-top:2px;color:var(--sub);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(biggest.desc||catMap[biggest.cat]?.label||'')}</div>
-    </div>`);
+    </div>`;
   }
   if(topCat){
-    tiles.push(`<div class="bento-tile">
+    T.topcat=`<div class="bento-tile" data-key="topcat">${rm('topcat')}
       <div class="bento-label" style="margin-bottom:8px">Top category</div>
       <div class="bento-ring-row">
         <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
@@ -1889,7 +1991,7 @@ async function renderHome() {
           <div class="bento-sub" style="margin-top:0">${topCatPct}%</div>
         </div>
       </div>
-    </div>`);
+    </div>`;
   }
   if(togetherPrim>0){
     const [p1,p2]=togetherPeople;
@@ -1898,7 +2000,7 @@ async function renderHome() {
     const color1=p1?userColor(p1[0]):'var(--surface2)', color2=p2?userColor(p2[0]):'var(--surface2)';
     const name1=p1?(users.find(u=>u.id===p1[0])?.name||'Other'):'';
     const name2=p2?(users.find(u=>u.id===p2[0])?.name||'Other'):'';
-    tiles.push(`<div class="bento-tile">
+    T.together=`<div class="bento-tile" data-key="together">${rm('together')}
       <div class="bento-label">Spent together</div>
       <div class="bento-value money" style="font-size:16px;margin-top:2px">${fmt(togetherPrim,primCur)}</div>
       <div class="gauge-wrap sm">
@@ -1909,22 +2011,29 @@ async function renderHome() {
         ${p1?`<div class="gauge-legend-item"><span class="gauge-dot" style="background:${color1}"></span>${escHtml(name1)}</div>`:''}
         ${p2?`<div class="gauge-legend-item"><span class="gauge-dot" style="background:${color2}"></span>${escHtml(name2)}</div>`:''}
       </div>
-    </div>`);
+    </div>`;
   }
   if(pendingRecurring.length){
-    tiles.push(`<div class="bento-tile span2 warn">
+    T.recurring=`<div class="bento-tile span2 warn" data-key="recurring">${rm('recurring')}
       <div class="bento-label">🔁 Recurring pending (${pendingRecurring.length})</div>
       ${pendingRecurring.map(r=>`<div class="bento-mini-row"><span class="bento-mini-name" style="min-width:0;width:auto;flex:1">${catMap[r.cat]?.icon||''} ${escHtml(r.desc)}</span><span class="bento-mini-amount money">${fmt(r.amount,r.currency||primCur)}</span></div>`).join('')}
       <button class="btn-primary" onclick="openNotifications()" style="margin-top:8px;font-size:14px;max-width:none">Review →</button>
-    </div>`);
+    </div>`;
   }
 
-  $('home-content').innerHTML=`
-    <div class="bento-grid">${tiles.join('')}</div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.3.1 · 2026-08-01 13:24</p>
-  `;
+  const lay=getHomeLayout();
+  const visibleKeys=lay.order.filter(k=>T[k]&&!lay.hidden.has(k));
+  const hiddenKeys=lay.order.filter(k=>lay.hidden.has(k));
 
-  if(daysPassed>1 && $('home-spark')){
+  $('home-content').innerHTML=`
+    <div class="home-edit-bar"><span>Drag the tiles to reorder · tap × to hide</span><button class="home-edit-done" onclick="toggleHomeEdit()">Done</button></div>
+    <div class="bento-grid">${visibleKeys.map(k=>T[k]).join('')}</div>
+    ${homeEditMode?`<div class="tray"><div class="tray-label">Hidden tiles — tap to bring back</div>${hiddenKeys.length?hiddenKeys.map(k=>`<button class="tray-chip" onclick="showHomeTile('${k}')">+ ${TILE_LABELS[k]||k}</button>`).join(''):'<div class="tray-empty">Nothing hidden</div>'}</div>`:''}
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.4.0 · 2026-08-01 13:49</p>
+  `;
+  setupTileDrag();
+
+  if(daysPassed>1 && !lay.hidden.has('daily') && $('home-spark')){
     const sparkMonth=MONTHS[homeM-1].slice(0,3);
     const subColor=cssVar('--sub');
     homeSparkChart=new Chart($('home-spark'),{type:'line',data:{labels:dayTotals.map((_,i)=>i+1),datasets:[{data:dayTotals,borderColor:'#ec4899',borderWidth:2,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#ec4899',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.35,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,80);g.addColorStop(0,'rgba(236,72,153,.4)');g.addColorStop(1,'rgba(236,72,153,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:true,displayColors:false,padding:8,callbacks:{title:its=>`${sparkMonth} ${its[0].label}`,label:ctx=>fmt(ctx.raw,primCur)+' spent'}}},scales:{x:{display:false},y:{display:true,position:'right',ticks:{maxTicksLimit:3,color:subColor,font:{size:9},callback:v=>v>=1000?(v/1000).toFixed(1)+'k':Math.round(v)},grid:{color:'rgba(255,255,255,.06)'},border:{display:false}}}}});
@@ -2995,7 +3104,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '13:24';
+const _THIS_VERSION = '13:49';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())

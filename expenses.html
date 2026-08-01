@@ -82,22 +82,19 @@
     .home-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
     .home-greeting{font-size:22px;font-weight:700;margin-bottom:2px}
     .home-period{font-size:14px;color:var(--sub);margin-bottom:20px}
-    .home-total-amount{font-size:38px;font-weight:700;line-height:1.1;margin-top:6px}
-    .home-total-sub{font-size:13px;color:var(--sub);margin-top:4px}
-    .home-quick-row{display:flex;gap:8px;margin-top:14px}
-    .home-quick-chip{flex:1;background:var(--surface2);border-radius:10px;padding:10px 12px}
-    .home-quick-chip .chip-label{font-size:11px;color:var(--sub);margin-bottom:3px}
-    .home-quick-chip .chip-value{font-size:15px;font-weight:700}
     .notif-btn{background:transparent;border:none;font-size:22px;cursor:pointer;position:relative;padding:4px;line-height:1}
     .notif-badge{position:absolute;top:0;right:0;background:var(--danger);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 3px;display:none;align-items:center;justify-content:center}
     .notif-badge.visible{display:flex}
 
     /* Add */
     .amount-wrap{display:flex;align-items:center;justify-content:center;padding:6px 0 10px;gap:8px}
+    .amt-grid{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:8px;row-gap:8px}
+    .amt-grid .tip-row-slot{display:flex;align-items:center;gap:6px}
     .amount-symbol{font-size:14px;font-weight:700;color:var(--accent);line-height:1;cursor:pointer;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);user-select:none}
     .amount-symbol::after{content:'▾';font-size:9px;margin-left:3px;opacity:.7}
     input#amount-input{font-size:28px;font-weight:700;width:140px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);text-align:center;font-family:inherit;outline:none;padding:6px 10px}
     input#amount-input:focus{border-color:var(--accent)}
+    input#tip-input:focus{border-color:var(--accent)}
     input#amount-input::placeholder{color:var(--sub)}
     #currency-toggle{display:none}
     #currency-toggle.open{display:flex}
@@ -179,12 +176,10 @@
     .cat-budget-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
     .cat-budget-label-small{font-size:11px;color:var(--sub);white-space:nowrap}
 
-    /* Report (bento) */
-    .bento-period{font-size:20px;font-weight:700;margin-bottom:14px;letter-spacing:-.01em}
+    /* Home (bento) */
     .bento-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
     .bento-tile{background:var(--surface);border-radius:24px;padding:16px;display:flex;flex-direction:column;justify-content:center;min-height:92px;box-shadow:0 1px 1px rgba(0,0,0,.12),0 10px 24px -18px rgba(0,0,0,.6);position:relative;overflow:hidden}
     .bento-tile.span2{grid-column:span 2}
-    .bento-tile.accent{background:linear-gradient(135deg,rgba(99,102,241,.28),rgba(99,102,241,.08));border:1px solid rgba(99,102,241,.35)}
     .bento-tile.pink{background:linear-gradient(135deg,rgba(236,72,153,.32),rgba(168,85,247,.1));border:1px solid rgba(236,72,153,.35)}
     .bento-tile.warn{background:linear-gradient(135deg,rgba(239,68,68,.24),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.35)}
     .bento-icon{font-size:20px;margin-bottom:8px;line-height:1}
@@ -192,12 +187,23 @@
     .bento-value.big{font-size:36px;letter-spacing:-.03em}
     .bento-label{font-size:11.5px;color:var(--sub);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
     .bento-sub{font-size:12px;margin-top:6px;font-weight:600}
+    .bento-split-row{display:flex;justify-content:space-between;gap:12px}
+    .bento-corner-stats{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;flex-shrink:0;text-align:right;padding:8px 0}
+    .bento-corner-stat{display:flex;align-items:baseline;gap:6px}
     .bento-mini-row{display:flex;align-items:center;gap:10px;padding:6px 0}
-    .bento-mini-name{flex:0 0 auto;min-width:64px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bento-mini-name{flex:0 0 92px;width:92px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .bento-mini-bar-wrap{flex:1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
     .bento-mini-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
     .bento-mini-amount{flex:0 0 auto;font-size:13px;font-weight:600}
-    .bento-empty{grid-column:span 2;text-align:center;color:var(--sub);padding:24px 0;font-size:14px}
+    .gauge-wrap{position:relative;width:120px;height:60px;margin:6px auto 0;overflow:hidden}
+    .gauge-fill{position:absolute;top:0;left:0;width:120px;height:120px;border-radius:50%}
+    .gauge-hole{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72px;height:36px;border-radius:36px 36px 0 0;background:var(--surface)}
+    .gauge-wrap.sm{width:70px;height:35px}
+    .gauge-wrap.sm .gauge-fill{width:70px;height:70px}
+    .gauge-wrap.sm .gauge-hole{width:42px;height:21px;border-radius:21px 21px 0 0}
+    .gauge-legend{display:flex;justify-content:center;gap:18px;margin-top:10px;font-size:12px;color:var(--sub)}
+    .gauge-legend-item{display:flex;align-items:center;gap:6px}
+    .gauge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .fx-note{font-size:11px;color:var(--sub);text-align:center}
     .bento-spark-cap{font-size:11px;color:var(--sub);margin-top:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
     .bento-spark-wrap{position:relative;width:100%;height:52px;margin-top:4px}
@@ -209,13 +215,6 @@
     .bento-ring-text{min-width:0;flex:1}
     .bento-ring-text .bento-value{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* Report: insights */
-    .insights-title{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px}
-    .insight-card{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border-radius:20px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 1px rgba(0,0,0,.12),0 8px 20px -16px rgba(0,0,0,.6)}
-    .insight-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-    .insight-body{flex:1;min-width:0}
-    .insight-title{font-size:14px;font-weight:700;margin-bottom:2px}
-    .insight-sub{font-size:12.5px;color:var(--sub);line-height:1.4}
 
     /* Tags (hashtags) */
     .tags-chips{display:flex;flex-wrap:wrap;margin-top:8px}
@@ -336,6 +335,10 @@
     .field-row .field-label{width:52px;flex-shrink:0;font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
     .field-row .input-group{flex:1;margin:0;max-width:none}
     .field-row .input-group input{padding:9px 12px;font-size:14px}
+    .tip-toggle-btn{flex-shrink:0;width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--sub);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;opacity:.6}
+    .tip-toggle-btn.active{border-color:var(--accent);background:rgba(99,102,241,.15);opacity:1}
+    .tip-toggle-btn.labeled{width:auto;height:auto;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text)}
+    #tip-summary{font-variant-numeric:tabular-nums}
   </style>
 </head>
 <body>
@@ -466,15 +469,9 @@
     <div class="stats-card"><h3>Category breakdown</h3><div id="cat-breakdown"></div></div>
     <div class="stats-card"><h3 id="trends-title">Monthly trend (6 months)</h3><div class="chart-wrap"><canvas id="trends-chart"></canvas></div></div>
     <div class="stats-card"><h3>By person</h3><div id="person-breakdown"></div></div>
+    <div class="stats-card" id="tips-card" style="display:none"><h3>💵 Tips</h3><div class="cat-stat-row"><span class="cat-stat-name">Total tips</span><span class="cat-stat-amount" id="tips-total"></span></div><div style="font-size:12px;color:var(--sub);margin-top:2px" id="tips-sub"></div></div>
     <div class="stats-card"><h3>By store</h3><div id="store-breakdown"></div></div>
     <div class="stats-card"><h3>By tag</h3><div id="tag-breakdown"></div></div>
-  </div>
-
-  <!-- Report (bento) -->
-  <div id="view-report" class="view">
-    <div class="bento-period" id="report-period"></div>
-    <div class="bento-grid" id="report-grid"></div>
-    <div id="report-insights"></div>
   </div>
 
   <!-- Settings -->
@@ -511,7 +508,7 @@
             <option value="AED">AED</option><option value="EUR">EUR</option><option value="USD">USD</option><option value="GBP">GBP</option><option value="CHF">CHF</option><option value="SAR">SAR</option>
           </select>
         </div>
-        <p style="font-size:12px;color:var(--sub);margin-top:12px">Basic is shared by the whole family (bold, on Home/List/Reports). Secondary is your own preference — shown small in parentheses next to amounts, only for whoever is currently signed in. Pick "None" to hide it.</p>
+        <p style="font-size:12px;color:var(--sub);margin-top:12px">Basic is shared by the whole family (bold, on Home/List/Stats). Secondary is your own preference — shown small in parentheses next to amounts, only for whoever is currently signed in. Pick "None" to hide it.</p>
       </div></div>
     </div>
     <!-- Users -->
@@ -590,7 +587,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.1.0</strong> · deployed <strong>2026-07-19 15:11</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.2.0</strong> · deployed <strong>2026-07-20 06:47</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -625,10 +622,6 @@
       <svg class="i-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="13" width="4" height="6" rx="1"/><rect x="10" y="8.5" width="4" height="10.5" rx="1"/><rect x="15" y="4.5" width="4" height="14.5" rx="1"/></svg>
       <svg class="i-fill" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="13" width="4" height="6" rx="1"/><rect x="10" y="8.5" width="4" height="10.5" rx="1"/><rect x="15" y="4.5" width="4" height="14.5" rx="1"/></svg>
     </span><span>Stats</span></button>
-    <button class="tab-btn" data-view="report"><span class="tab-icon">
-      <svg class="i-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-      <svg class="i-fill" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-    </span><span>Report</span></button>
     <button class="tab-btn" data-view="settings"><span class="tab-icon">
       <svg class="i-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h4M4 18h10"/><circle cx="17" cy="6" r="2"/><circle cx="11" cy="12" r="2"/><circle cx="17" cy="18" r="2"/><path d="M19 6h1M15 12h5M19 18h1"/></svg>
       <svg class="i-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h4M4 18h10M19 6h1M15 12h5M19 18h1"/><circle cx="17" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="11" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
@@ -661,11 +654,21 @@
 <div id="edit-modal">
   <div class="modal-handle"></div>
   <div class="modal-title">Edit Expense</div>
-  <div class="amount-wrap" style="padding:0 0 16px">
+  <div class="amt-grid" style="margin-bottom:4px">
     <span class="amount-symbol" id="edit-amount-symbol">AED</span>
     <input type="text" id="edit-amount" placeholder="" inputmode="decimal"
       style="font-size:40px;font-weight:700;width:180px;border:2px solid var(--border);border-radius:14px;background:var(--surface2);color:var(--text);text-align:center;font-family:inherit;outline:none;padding:8px 14px"
       onfocus="this.select()">
+    <span></span>
+    <div class="tip-row-slot" id="edit-tip-slot">
+      <button type="button" class="tip-toggle-btn labeled" id="edit-tip-chip" onclick="toggleTipInput('edit')" aria-label="Add tip">💵 Add tip</button>
+      <input type="text" id="edit-tip-input" placeholder="Tip amount" inputmode="decimal" style="display:none;width:140px;padding:9px 12px;background:var(--surface2);border:1.5px solid var(--accent);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;outline:none;text-align:center">
+      <button type="button" id="edit-tip-clear" onclick="toggleTipInput('edit')" aria-label="Remove tip" style="display:none;background:transparent;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
+    </div>
+  </div>
+  <div id="edit-tip-total-wrap" style="display:none;text-align:center;margin-bottom:16px">
+    <div id="edit-tip-total-value" style="font-size:28px;font-weight:700;color:var(--text)"></div>
+    <div id="edit-tip-pct-note" style="font-size:12px;color:var(--sub);margin-top:2px"></div>
   </div>
   <div class="section-label">Currency</div>
   <div class="who-chips" id="edit-currency-toggle" style="margin-bottom:16px">
@@ -715,8 +718,18 @@
 
   <!-- Step 1: Amount -->
   <div class="add-step active" id="add-step-1">
-    <div class="amount-wrap">
+    <div class="amt-grid" style="margin-bottom:4px">
       <span class="amount-symbol" id="amount-symbol" onclick="toggleCurrencyPicker()">AED</span><input type="text" id="amount-input" placeholder="0" inputmode="none" readonly>
+      <span></span>
+      <div class="tip-row-slot" id="tip-slot">
+        <button type="button" class="tip-toggle-btn labeled" id="tip-chip" onclick="toggleTipInput('add')" aria-label="Add tip">💵 Add tip</button>
+        <input type="text" id="tip-input" placeholder="Tip amount" inputmode="none" readonly style="display:none;width:140px;padding:9px 12px;background:var(--surface2);border:1.5px solid var(--accent);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;outline:none;text-align:center">
+        <button type="button" id="tip-clear" onclick="toggleTipInput('add')" aria-label="Remove tip" style="display:none;background:transparent;border:none;color:var(--sub);font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
+      </div>
+    </div>
+    <div id="tip-total-wrap" style="display:none;text-align:center;margin-bottom:8px">
+      <div id="tip-total-value" style="font-size:28px;font-weight:700;color:var(--text)"></div>
+      <div id="tip-pct-note" style="font-size:12px;color:var(--sub);margin-top:2px"></div>
     </div>
     <div class="who-chips" id="currency-toggle">
       <button class="who-chip active" data-cur="AED">🇦🇪 AED</button>
@@ -924,12 +937,13 @@ let listExpenses = {};
 let recurringList = {};
 let pendingRecurring = [];
 let selectedCat = 'food', selectedCur = 'AED';
-let addStep = 1, addAmountStr = '';
+let addStep = 1, addAmountStr = '', addTipStr = '', addActiveField = 'amount';
+let addTipOn = false, editTipOn = false;
 let selectedWho = null, splitDetails = [], editSplitDetails = [], recSplitDetails = [];
 let editCat = 'food', editCur = 'AED', editWho = null;
 let recCat = 'food', recWho = null;
 let editState = null, recEditId = null;
-let pieChart = null, trendsChart = null, reportSparkChart = null;
+let pieChart = null, trendsChart = null, homeSparkChart = null;
 let filterCat = null, filterUser = null, filterTag = null;
 let listTagOptions = [];
 let statsFilterCat = null, statsFilterUser = null;
@@ -1243,11 +1257,19 @@ function buildCatGrid(gridId, isEdit=false, isRec=false, isScroll=false) {
 }
 
 // ─── Add expense modal (3-step wizard) ───
+function resetAddTipUI() {
+  addTipOn=false; addTipStr='';
+  $('tip-chip').classList.remove('active'); $('tip-chip').style.display='';
+  $('tip-input').style.display='none'; $('tip-input').value='';
+  $('tip-clear').style.display='none';
+  $('tip-total-wrap').style.display='none';
+}
 window.openAddModal = function() {
-  addAmountStr = '';
+  addAmountStr = ''; addActiveField = 'amount';
   $('amount-input').value = '';
   selectedCat = orderedCats()[0]?.id || activeCats[0]?.id || 'food';
   $('date-input').value = today();
+  resetAddTipUI();
   addGoStep(1);
   $('add-scrim').classList.add('open');
   $('add-modal').classList.add('open');
@@ -1264,26 +1286,74 @@ window.addGoStep = function(n) {
   $(`add-step-${n}`).classList.add('active');
   document.querySelectorAll('.add-dot').forEach((d,i)=>d.classList.toggle('active', i===n-1));
   $('add-btn-back').style.visibility = n===1 ? 'hidden' : 'visible';
-  if(n===2){ buildCatGrid('cat-grid', false, false, true); buildWhoSelector('who-selector', selectedWho, 'add'); }
+  if(n===2){ buildCatGrid('cat-grid', false, false, true); buildWhoSelector('who-selector', selectedWho, 'add'); if(selectedWho==='split') buildSplitRows('split-user-rows','add'); }
 };
 window.addStepBack = function() { if(addStep>1) addGoStep(addStep-1); };
 
+window.toggleTipInput = function(context) {
+  const on = context==='edit' ? (editTipOn=!editTipOn) : (addTipOn=!addTipOn);
+  const p = context==='edit' ? 'edit-tip-' : 'tip-';
+  const chip = $(p+'chip'), input = $(p+'input'), clear = $(p+'clear'), totalWrap = $(p+'total-wrap');
+  // chip / input / clear-✕ share one slot — only one of them is visible at a time
+  chip.classList.toggle('active', on);
+  chip.style.display = on ? 'none' : '';
+  input.style.display = on ? 'inline-block' : 'none';
+  clear.style.display = on ? 'inline-block' : 'none';
+  totalWrap.style.display = on ? 'block' : 'none';
+  if(context==='edit'){
+    if(on) setTimeout(()=>input.focus(), 50); else input.value = '';
+    updateEditTipSummary();
+    if(editWho==='split') buildSplitRows('edit-split-user-rows','edit');
+  } else {
+    if(!on) addTipStr='';
+    if(on) setTimeout(()=>input.focus(), 50); else { setTipDisplay(); $('amount-input').focus(); }
+    updateTipSummary();
+  }
+};
+
+function updateEditTipSummary() {
+  $('edit-tip-total-wrap').style.display = editTipOn ? 'block' : 'none';
+  if(!editTipOn) return;
+  const base=parseAmt($('edit-amount').value), tip=parseAmt($('edit-tip-input').value);
+  const total=round2(base+tip);
+  const pct=base>0?Math.round(tip/base*100):0;
+  $('edit-tip-total-value').textContent=fmt(total,editCur);
+  $('edit-tip-pct-note').textContent=`tip is ${pct}% of amount`;
+}
+
+function updateTipSummary() {
+  $('tip-total-wrap').style.display = addTipOn ? 'block' : 'none';
+  if(!addTipOn) return;
+  const base=parseAmt(addAmountStr), tip=parseAmt(addTipStr);
+  const total=round2(base+tip);
+  const pct=base>0?Math.round(tip/base*100):0;
+  $('tip-total-value').textContent=fmt(total,selectedCur);
+  $('tip-pct-note').textContent=`tip is ${pct}% of amount`;
+}
 function setAmtDisplay() {
   $('amount-input').value = addAmountStr;
   if(selectedWho==='split') buildSplitRows('split-user-rows','add');
+  updateTipSummary();
+}
+function setTipDisplay() {
+  $('tip-input').value = addTipStr;
+  updateTipSummary();
+}
+function applyNumpadKey(str, k) {
+  if(k==='del') return str.slice(0,-1);
+  if(k==='.') return str.includes('.') ? str : str+(str===''?'0.':'.');
+  const dot = str.indexOf('.');
+  if(dot>=0 && str.length-dot>2) return str;
+  return str==='0' ? k : str+k;
 }
 function setupAmtNumpad() {
+  $('amount-input').addEventListener('focus', ()=>{ addActiveField='amount'; });
+  $('tip-input').addEventListener('focus', ()=>{ addActiveField='tip'; });
   $('amt-numpad').addEventListener('click', e=>{
     const btn = e.target.closest('.numpad-btn'); if(!btn) return;
     const k = btn.dataset.k;
-    if(k==='del') addAmountStr = addAmountStr.slice(0,-1);
-    else if(k==='.') { if(!addAmountStr.includes('.')) addAmountStr += addAmountStr===''?'0.':'.'; }
-    else {
-      const dot = addAmountStr.indexOf('.');
-      if(dot>=0 && addAmountStr.length-dot>2) return;
-      addAmountStr = addAmountStr==='0' ? k : addAmountStr+k;
-    }
-    setAmtDisplay();
+    if(addActiveField==='tip'){ addTipStr=applyNumpadKey(addTipStr,k); setTipDisplay(); }
+    else { addAmountStr=applyNumpadKey(addAmountStr,k); setAmtDisplay(); }
   });
 }
 
@@ -1340,11 +1410,21 @@ function selectWho(who, selectorId, context) {
   }
 }
 
+// Base amount typed for the item, plus its tip (if toggled on) — this is the
+// true total that split shares and the saved record should add up to.
+function getEffectiveAmount(context) {
+  const amountInput = context==='edit'?'edit-amount':context==='rec'?'rec-amount':'amount-input';
+  const base = parseAmt($(amountInput)?.value);
+  if(context==='rec') return base;
+  const tipOn = context==='edit'?editTipOn:addTipOn;
+  const tipInput = context==='edit'?'edit-tip-input':'tip-input';
+  const tip = tipOn ? parseAmt($(tipInput)?.value) : 0;
+  return round2(base+tip);
+}
 function buildSplitRows(rowsId, context) {
   const detailsGetter = ()=> context==='edit'?editSplitDetails:context==='rec'?recSplitDetails:splitDetails;
   const detailsSetter = (v)=>{ if(context==='edit') editSplitDetails=v; else if(context==='rec') recSplitDetails=v; else splitDetails=v; };
-  const amountInput = context==='edit'?'edit-amount':context==='rec'?'rec-amount':'amount-input';
-  const amount = parseAmt($(amountInput)?.value);
+  const amount = getEffectiveAmount(context);
   const au = activeUsers();
 
   let details = detailsGetter();
@@ -1389,9 +1469,8 @@ function toggleSplitUser(userId, context, checked) {
 }
 
 window.equalSplit = function(context) {
-  const amountInput = context==='edit'?'edit-amount':context==='rec'?'rec-amount':'amount-input';
   const rowsId = context==='edit'?'edit-split-user-rows':context==='rec'?'rec-split-user-rows':'split-user-rows';
-  const amount = parseAmt($(amountInput)?.value);
+  const amount = getEffectiveAmount(context);
   const details = context==='edit'?editSplitDetails:context==='rec'?recSplitDetails:splitDetails;
   const sel = details.filter(d=>d.selected);
   if (!sel.length) return;
@@ -1405,8 +1484,7 @@ window.equalSplit = function(context) {
 function updateSplitAmount(userId, context, val) {
   const details     = context==='edit'?editSplitDetails:context==='rec'?recSplitDetails:splitDetails;
   const rowsId      = context==='edit'?'edit-split-user-rows':context==='rec'?'rec-split-user-rows':'split-user-rows';
-  const amountInput = context==='edit'?'edit-amount':context==='rec'?'rec-amount':'amount-input';
-  const total = parseAmt($(amountInput)?.value);
+  const total = getEffectiveAmount(context);
   const s = details.find(d=>d.userId===userId); if(!s) return;
   s.amount = round2(val); s.pct = total>0 ? round2(val/total*100) : 0;
   // auto-fill remainder into last selected person (not the one just edited)
@@ -1422,7 +1500,7 @@ function updateSplitAmount(userId, context, val) {
 }
 
 // ─── Tabs ───
-const TAB_ORDER=['home','list','stats','report','settings'];
+const TAB_ORDER=['home','list','stats','settings'];
 function setupTabs() {
   document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
 }
@@ -1457,7 +1535,6 @@ function switchView(name) {
   if(name==='home')  renderHome();
   if(name==='list')  { buildListFilters(); loadListPeriod(); }
   if(name==='stats') { buildStatsFilters(); renderStats(statsYear,statsMonth); }
-  if(name==='report') renderReport();
   if(name==='settings') { buildUsersSection(); buildRecurringSection(); buildCategoriesSection(); }
 }
 function collapseAllAcc() {
@@ -1615,7 +1692,6 @@ function subscribeCurrentMonth() {
       buildListFilters(); renderListFiltered();
     }
     if($('view-home').classList.contains('active')) renderHome();
-    if($('view-report').classList.contains('active')) renderReport();
   };
   ref.on('value',handler);
   unsubscribe=()=>ref.off('value',handler);
@@ -1657,217 +1733,176 @@ async function renderHome() {
   const homeExpenses=(homeY===currentYear&&homeM===currentMonth)?listExpenses:await loadMonth(homeY,homeM);
   $('home-period').textContent=`${MONTHS[homeM-1]} ${homeY}`;
 
+  if(homeSparkChart){homeSparkChart.destroy();homeSparkChart=null;}
+
   const primCur=config.defaultCurrency||'AED';
   const items=Object.values(homeExpenses);
   const budget=config.budget||0;
+  const daysPassed=now.getDate();
 
-  const totalPrim=items.reduce((s,e)=>{
-    const cur=e.currency||primCur;
-    return s+(cur===primCur?e.amount:toEur(e.amount,cur)/(fxToEur[primCur]||1));
-  },0);
+  const toPrim=e=>{ const cur=e.currency||primCur; return cur===primCur?e.amount:toEur(e.amount,cur)/(fxToEur[primCur]||1); };
+
+  const totalPrim=items.reduce((s,e)=>s+toPrim(e),0);
+  // Expenses dated beyond today (e.g. rent entered in advance for the 15th)
+  // haven't "happened" yet — exclude them from any rate/pace-style metric
+  // (avg/day, vs-last-month) so a future-dated entry doesn't skew those
+  // ahead of its date. The headline total/budget/category % below still use
+  // totalPrim, since those should reflect everything committed this month.
+  const elapsedTotal=items.filter(e=>parseInt((e.date||'').split('-')[2]||'99')<=daysPassed).reduce((s,e)=>s+toPrim(e),0);
+  const avgDay=daysPassed>0?elapsedTotal/daysPassed:0;
 
   const budgetPct=budget>0?Math.min(totalPrim/budget,1):0;
-  const cls=budgetPct>.9?' danger':budgetPct>.7?' warning':'';
-  const daysPassed=now.getDate();
-  const avgDay=daysPassed>0?totalPrim/daysPassed:0;
+  const budgetOver=budget>0&&totalPrim>budget;
+  const ringColor=budgetOver?'var(--danger)':budgetPct>0.7?'var(--warning)':'var(--success)';
 
-  // fair comparison: previous month up to same day-of-month
+  // fair comparison: previous month up to same day-of-month, vs this
+  // month's own total up to that same day (so a future-dated entry
+  // doesn't count until its date actually arrives)
   let prevM=homeM-1, prevY=homeY;
   if(prevM<1){prevM=12;prevY--;}
   const prevAllItems=Object.values(await loadMonth(prevY,prevM));
   const prevItems=prevAllItems.filter(e=>parseInt((e.date||'').split('-')[2]||'99')<=daysPassed);
-  const prevTotal=prevItems.reduce((s,e)=>{
-    const cur=e.currency||primCur;
-    return s+(cur===primCur?e.amount:toEur(e.amount,cur)/(fxToEur[primCur]||1));
-  },0);
+  const prevTotal=prevItems.reduce((s,e)=>s+toPrim(e),0);
   let compHtml='';
-  if(prevTotal>0&&totalPrim>0){
-    const diff=totalPrim-prevTotal, pct=Math.round(Math.abs(diff)/prevTotal*100);
+  if(prevTotal>0&&elapsedTotal>0){
+    const diff=elapsedTotal-prevTotal, pct=Math.round(Math.abs(diff)/prevTotal*100);
     const up=diff>0;
-    compHtml=`<span style="font-size:13px;font-weight:600;color:${up?'var(--danger)':'var(--success)'}">
-      ${up?'↑':'↓'} ${pct}% vs ${MONTHS[prevM-1]} (1–${daysPassed})</span>`;
+    compHtml=`<div class="bento-sub" style="color:${up?'var(--danger)':'var(--success)'}">${up?'↑':'↓'} ${pct}% vs ${MONTHS[prevM-1]} (1–${daysPassed})</div>`;
   }
+  const secAmt=secondaryAmt(toEur(totalPrim,primCur),primCur);
 
   const byCat={};
-  items.forEach(e=>{ const cur=e.currency||primCur; const amt=cur===primCur?e.amount:toEur(e.amount,cur)/(fxToEur[primCur]||1); byCat[e.cat]=(byCat[e.cat]||0)+amt; });
+  items.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+toPrim(e); });
   const topCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,3);
-
-  $('home-content').innerHTML=`
-    <div class="stats-card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <h3>${MONTHS[homeM-1]} ${homeY}</h3>
-        ${compHtml}
-      </div>
-      <div class="home-total-amount">${fmt(totalPrim,primCur)}${secondarySpan(toEur(totalPrim,primCur),primCur)}</div>
-      ${budget>0?`<div class="home-total-sub">${fmt(budget-totalPrim,primCur)} remaining of ${fmt(budget,primCur)}</div>
-        <div class="progress-bar" style="margin-top:12px"><div class="progress-fill${cls}" style="width:${budgetPct*100}%"></div></div>`
-        :`<div class="home-total-sub">${items.length} expense${items.length!==1?'s':''}</div>`}
-      <div class="home-quick-row">
-        <div class="home-quick-chip"><div class="chip-label">Expenses</div><div class="chip-value">${items.length}</div></div>
-        <div class="home-quick-chip"><div class="chip-label">Avg / day</div><div class="chip-value">${fmt(avgDay,primCur)}</div></div>
-      </div>
-    </div>
-    ${topCats.length?`<div class="stats-card" style="margin-bottom:20px"><h3>Top categories</h3>
-      ${topCats.map(([id,amt])=>{const cat=catMap[id]||catMap.other;const pct=totalPrim?Math.round(amt/totalPrim*100):0;return`<div class="cat-stat-row"><div class="cat-stat-dot" style="background:${cat.color}"></div><span class="cat-stat-name">${cat.icon} ${cat.label}</span><span class="cat-stat-amount">${fmt(amt,primCur)}${secondarySpan(toEur(amt,primCur),primCur)}</span><span class="cat-stat-pct">${pct}%</span></div>`;}).join('')}
-    </div>`:''}
-    ${pendingRecurring.length?`<div class="stats-card" style="margin-bottom:20px;border:1.5px solid var(--warning)">
-      <h3>🔁 Recurring pending (${pendingRecurring.length})</h3>
-      ${pendingRecurring.map(r=>`<div class="cat-stat-row"><span class="cat-stat-name">${catMap[r.cat]?.icon||''} ${escHtml(r.desc)}</span><span class="cat-stat-amount">${fmt(r.amount,r.currency||primCur)}</span></div>`).join('')}
-      <button class="btn-primary" onclick="openNotifications()" style="margin-top:8px;font-size:14px">Review →</button>
-    </div>`:''}
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:18px">v3.1.0 · 2026-07-19 15:11</p>
-  `;
-
-  updateNotifBadge();
-}
-
-// ─── Report (bento) ───
-function splitAwareEur(e, primCur) {
-  return e.split ? e.split.reduce((s,sp)=>s+toEur(sp.amount,e.currency||primCur),0) : toEur(e.amount,e.currency||primCur);
-}
-async function renderReport() {
-  const now=new Date(), homeY=now.getFullYear(), homeM=now.getMonth()+1;
-  const primCur=config.defaultCurrency||'AED';
-  const items=Object.values((homeY===currentYear&&homeM===currentMonth)?listExpenses:await loadMonth(homeY,homeM));
-  $('report-period').textContent=`${MONTHS[homeM-1]} ${homeY}`;
-
-  if(reportSparkChart){reportSparkChart.destroy();reportSparkChart=null;}
-
-  if(!items.length){
-    $('report-grid').innerHTML='<div class="bento-empty">No expenses yet this month</div>';
-    $('report-insights').innerHTML='';
-    return;
-  }
-
-  const totalEur=items.reduce((s,e)=>s+splitAwareEur(e,primCur),0);
-  const daysPassed=now.getDate();
-  const avgDayEur=daysPassed>0?totalEur/daysPassed:0;
-  const daysInMonth=new Date(homeY,homeM,0).getDate();
+  const [topCatId,topCatAmt]=topCats[0]||[];
+  const topCat=topCatId?(catMap[topCatId]||catMap.other):null;
+  const topCatPct=topCat&&totalPrim?Math.round(topCatAmt/totalPrim*100):0;
 
   const dayTotals=Array(daysPassed).fill(0);
   items.forEach(e=>{
     const d=parseInt((e.date||'').split('-')[2]||'0',10);
-    if(d>=1&&d<=daysPassed) dayTotals[d-1]+=splitAwareEur(e,primCur);
+    if(d>=1&&d<=daysPassed) dayTotals[d-1]+=toPrim(e);
   });
 
-  let prevM=homeM-1, prevY=homeY; if(prevM<1){prevM=12;prevY--;}
-  const prevAllItems=Object.values(await loadMonth(prevY,prevM));
-  const prevItems=prevAllItems.filter(e=>parseInt((e.date||'').split('-')[2]||'99')<=daysPassed);
-  const prevEur=prevItems.reduce((s,e)=>s+splitAwareEur(e,primCur),0);
-  let trendHtml='', trendUp=null, trendPct=0;
-  if(prevEur>0){
-    const diff=totalEur-prevEur; trendPct=Math.round(Math.abs(diff)/prevEur*100); trendUp=diff>0;
-    trendHtml=`<div class="bento-sub" style="color:${trendUp?'var(--danger)':'var(--success)'}">${trendUp?'↑':'↓'} ${trendPct}% vs last month</div>`;
+  const biggest=items.length?items.slice().sort((a,b)=>toPrim(b)-toPrim(a))[0]:null;
+  const biggestPrim=biggest?toPrim(biggest):0;
+
+  const splitItems=items.filter(e=>e.split&&e.split.length);
+  const togetherPrim=splitItems.reduce((s,e)=>s+toPrim(e),0);
+  const byPersonTogether={};
+  splitItems.forEach(e=>{
+    const cur=e.currency||primCur;
+    e.split.forEach(sp=>{
+      const amtPrim=cur===primCur?sp.amount:toEur(sp.amount,cur)/(fxToEur[primCur]||1);
+      byPersonTogether[sp.userId]=(byPersonTogether[sp.userId]||0)+amtPrim;
+    });
+  });
+  let togetherPeople=Object.entries(byPersonTogether).sort((a,b)=>b[1]-a[1]);
+  if(togetherPeople.length>2){
+    const restAmt=togetherPeople.slice(2).reduce((s,[,a])=>s+a,0);
+    togetherPeople=[togetherPeople[0],[togetherPeople[1][0],togetherPeople[1][1]+restAmt]];
   }
-
-  const budget=config.budget||0;
-  const budgetPct=budget>0?Math.min(eurToReport(totalEur)/budget,1):0;
-  const budgetOver=budget>0&&eurToReport(totalEur)>budget;
-  const ringColor=budgetOver?'var(--danger)':budgetPct>0.7?'var(--warning)':'var(--success)';
-
-  const byCat={};
-  items.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+splitAwareEur(e,primCur); });
-  const [topCatId,topCatEur]=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
-  const topCat=catMap[topCatId]||catMap.other;
-  const topCatPct=totalEur?Math.round(topCatEur/totalEur*100):0;
-
-  const togetherEur=items.filter(e=>e.split&&e.split.length).reduce((s,e)=>s+splitAwareEur(e,primCur),0);
-
-  const biggest=items.slice().sort((a,b)=>splitAwareEur(b,primCur)-splitAwareEur(a,primCur))[0];
-  const biggestEur=splitAwareEur(biggest,primCur);
-
-  const byPerson={};
-  items.forEach(e=>{
-    if(e.split) e.split.forEach(s=>{byPerson[s.userId]=(byPerson[s.userId]||0)+toEur(s.amount,e.currency||primCur);});
-    else{const uid=resolveUserId(e.who);if(uid)byPerson[uid]=(byPerson[uid]||0)+toEur(e.amount,e.currency||primCur);}
-  });
-  const personEntries=users.map(u=>[u,byPerson[u.id]||0]).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  const maxPersonEur=personEntries.length?personEntries[0][1]:0;
 
   const tiles=[];
   tiles.push(`<div class="bento-tile span2 pink">
-    <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
-    <div class="bento-value big">${fmtReport(totalEur)}</div>
-    ${trendHtml}
-    ${daysPassed>1?`<div class="bento-spark-cap">Daily spend</div>
-    <div class="bento-spark-wrap"><canvas class="bento-spark" id="report-spark"></canvas></div>
-    <div class="bento-spark-axis"><span>${MONTHS[homeM-1].slice(0,3)} 1</span><span>${MONTHS[homeM-1].slice(0,3)} ${daysPassed}</span></div>`:''}
+    <div class="bento-split-row">
+      <div style="min-width:0">
+        <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
+        <div class="bento-value" style="font-size:23px;white-space:nowrap">${fmt(totalPrim,primCur)}</div>
+        ${secAmt?`<div class="bento-sub" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
+        ${compHtml}
+      </div>
+      <div class="bento-corner-stats">
+        <div class="bento-corner-stat"><span class="bento-value" style="font-size:16px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
+        <div class="bento-corner-stat"><span class="bento-value" style="font-size:16px">${items.length}</span><span class="bento-label" style="margin-top:0">expense${items.length!==1?'s':''}</span></div>
+      </div>
+    </div>
   </div>`);
   if(budget>0){
     tiles.push(`<div class="bento-tile">
+      <div class="bento-label" style="margin-bottom:8px">Budget</div>
       <div class="bento-ring-row">
         <div class="bento-ring-wrap" style="background:conic-gradient(${ringColor} ${Math.round(budgetPct*360)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">🎯</div></div>
         <div class="bento-ring-text">
           <div class="bento-value">${Math.round(budgetPct*100)}%</div>
-          <div class="bento-label">of budget${budgetOver?' — over!':''}</div>
+          ${budgetOver?'<div class="bento-sub" style="margin-top:0;color:var(--danger)">Over!</div>':''}
         </div>
       </div>
     </div>`);
   }
-  tiles.push(`<div class="bento-tile">
-    <div class="bento-ring-row">
-      <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
-      <div class="bento-ring-text">
-        <div class="bento-value">${escHtml(topCat.label)}</div>
-        <div class="bento-label">${topCatPct}% · top cat.</div>
+  if(topCat){
+    tiles.push(`<div class="bento-tile">
+      <div class="bento-label" style="margin-bottom:8px">Top category</div>
+      <div class="bento-ring-row">
+        <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
+        <div class="bento-ring-text">
+          <div class="bento-value">${escHtml(topCat.label)}</div>
+          <div class="bento-sub" style="margin-top:0">${topCatPct}%</div>
+        </div>
       </div>
-    </div>
-  </div>`);
-  tiles.push(`<div class="bento-tile">
-    <div class="bento-icon">📅</div>
-    <div class="bento-value">${fmtReport(avgDayEur)}</div>
-    <div class="bento-label">avg / day</div>
-  </div>`);
-  tiles.push(`<div class="bento-tile">
-    <div class="bento-icon">🧾</div>
-    <div class="bento-value">${items.length}</div>
-    <div class="bento-label">expense${items.length!==1?'s':''}</div>
-  </div>`);
-  if(togetherEur>0){
-    tiles.push(`<div class="bento-tile accent">
-      <div class="bento-icon">🤝</div>
-      <div class="bento-value" style="font-size:20px">${fmtReport(togetherEur)}</div>
-      <div class="bento-label">spent together</div>
     </div>`);
   }
-  tiles.push(`<div class="bento-tile span2">
-    <div class="bento-icon">${catMap[biggest.cat]?.icon||'💳'}</div>
-    <div class="bento-value" style="font-size:20px">${fmtReport(biggestEur)}</div>
-    <div class="bento-label">biggest expense · ${escHtml(biggest.desc||catMap[biggest.cat]?.label||'')}</div>
-  </div>`);
-  if(personEntries.length>1){
+  if(topCats.length){
     tiles.push(`<div class="bento-tile span2">
-      <div class="bento-label" style="margin-bottom:8px">By person</div>
-      ${personEntries.map(([u,eur])=>`<div class="bento-mini-row"><span class="bento-mini-name">${escHtml(u.name)}</span><div class="bento-mini-bar-wrap"><div class="bento-mini-bar-fill" style="width:${maxPersonEur?Math.round(eur/maxPersonEur*100):0}%;background:${userColor(u.id)}"></div></div><span class="bento-mini-amount">${fmtReport(eur)}</span></div>`).join('')}
+      <div class="bento-label" style="margin-bottom:8px">Top 3 categories</div>
+      ${topCats.map(([id,amt])=>{const cat=catMap[id]||catMap.other;const pct=totalPrim?Math.round(amt/totalPrim*100):0;return`<div class="bento-mini-row"><span class="bento-mini-name">${cat.icon} ${escHtml(cat.label)}</span><div class="bento-mini-bar-wrap"><div class="bento-mini-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><span class="bento-mini-amount">${fmt(amt,primCur)}</span></div>`;}).join('')}
+    </div>`);
+  }
+  if(daysPassed>1){
+    tiles.push(`<div class="bento-tile span2">
+      <div class="bento-label">Daily spend</div>
+      <div class="bento-spark-wrap" style="height:80px"><canvas class="bento-spark" id="home-spark"></canvas></div>
+      <div class="bento-spark-axis"><span>${MONTHS[homeM-1].slice(0,3)} 1</span><span>${MONTHS[homeM-1].slice(0,3)} ${daysPassed}</span></div>
+    </div>`);
+  }
+  if(biggest){
+    tiles.push(`<div class="bento-tile">
+      <div class="bento-icon">${catMap[biggest.cat]?.icon||'💳'}</div>
+      <div class="bento-value" style="font-size:18px">${fmt(biggestPrim,primCur)}</div>
+      <div class="bento-label">biggest expense</div>
+      <div class="bento-sub" style="margin-top:2px;color:var(--sub);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(biggest.desc||catMap[biggest.cat]?.label||'')}</div>
+    </div>`);
+  }
+  if(togetherPrim>0){
+    const [p1,p2]=togetherPeople;
+    const gTotal=(p1?.[1]||0)+(p2?.[1]||0)||1;
+    const gPct1=Math.round((p1?.[1]||0)/gTotal*100);
+    const color1=p1?userColor(p1[0]):'var(--surface2)', color2=p2?userColor(p2[0]):'var(--surface2)';
+    const name1=p1?(users.find(u=>u.id===p1[0])?.name||'Other'):'';
+    const name2=p2?(users.find(u=>u.id===p2[0])?.name||'Other'):'';
+    tiles.push(`<div class="bento-tile">
+      <div class="bento-label">Spent together</div>
+      <div class="bento-value" style="font-size:16px;margin-top:2px">${fmt(togetherPrim,primCur)}</div>
+      <div class="gauge-wrap sm">
+        <div class="gauge-fill" style="background:conic-gradient(from 270deg, ${color1} 0deg, ${color1} ${gPct1*1.8}deg, ${color2} ${gPct1*1.8}deg, ${color2} 180deg, transparent 180deg, transparent 360deg)"></div>
+        <div class="gauge-hole"></div>
+      </div>
+      <div class="gauge-legend" style="gap:10px;margin-top:6px;font-size:10px">
+        ${p1?`<div class="gauge-legend-item"><span class="gauge-dot" style="background:${color1}"></span>${escHtml(name1)}</div>`:''}
+        ${p2?`<div class="gauge-legend-item"><span class="gauge-dot" style="background:${color2}"></span>${escHtml(name2)}</div>`:''}
+      </div>
+    </div>`);
+  }
+  if(pendingRecurring.length){
+    tiles.push(`<div class="bento-tile span2 warn">
+      <div class="bento-label">🔁 Recurring pending (${pendingRecurring.length})</div>
+      ${pendingRecurring.map(r=>`<div class="bento-mini-row"><span class="bento-mini-name" style="min-width:0;width:auto;flex:1">${catMap[r.cat]?.icon||''} ${escHtml(r.desc)}</span><span class="bento-mini-amount">${fmt(r.amount,r.currency||primCur)}</span></div>`).join('')}
+      <button class="btn-primary" onclick="openNotifications()" style="margin-top:8px;font-size:14px;max-width:none">Review →</button>
     </div>`);
   }
 
-  $('report-grid').innerHTML=tiles.join('');
+  $('home-content').innerHTML=`
+    <div class="bento-grid">${tiles.join('')}</div>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.2.0 · 2026-07-20 06:47</p>
+  `;
 
-  if(daysPassed>1 && $('report-spark')){
+  if(daysPassed>1 && $('home-spark')){
     const sparkMonth=MONTHS[homeM-1].slice(0,3);
-    reportSparkChart=new Chart($('report-spark'),{type:'line',data:{labels:dayTotals.map((_,i)=>i+1),datasets:[{data:dayTotals.map(v=>eurToReport(v)),borderColor:'#ec4899',borderWidth:2,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#ec4899',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.35,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,52);g.addColorStop(0,'rgba(236,72,153,.4)');g.addColorStop(1,'rgba(236,72,153,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:true,displayColors:false,padding:8,callbacks:{title:its=>`${sparkMonth} ${its[0].label}`,label:ctx=>fmt(ctx.raw,primCur)+' spent'}}},scales:{x:{display:false},y:{display:false}}}});
+    const subColor=cssVar('--sub');
+    homeSparkChart=new Chart($('home-spark'),{type:'line',data:{labels:dayTotals.map((_,i)=>i+1),datasets:[{data:dayTotals,borderColor:'#ec4899',borderWidth:2,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#ec4899',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,tension:.35,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,80);g.addColorStop(0,'rgba(236,72,153,.4)');g.addColorStop(1,'rgba(236,72,153,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:true,displayColors:false,padding:8,callbacks:{title:its=>`${sparkMonth} ${its[0].label}`,label:ctx=>fmt(ctx.raw,primCur)+' spent'}}},scales:{x:{display:false},y:{display:true,position:'right',ticks:{maxTicksLimit:3,color:subColor,font:{size:9},callback:v=>v>=1000?(v/1000).toFixed(1)+'k':Math.round(v)},grid:{color:'rgba(255,255,255,.06)'},border:{display:false}}}}});
   }
 
-  const insights=[];
-  const insightCard=(icon,color,title,sub)=>`<div class="insight-card"><div class="insight-icon" style="background:${color}22;color:${color}">${icon}</div><div class="insight-body"><div class="insight-title">${title}</div><div class="insight-sub">${sub}</div></div></div>`;
-
-  if(prevEur>0){
-    insights.push(insightCard(trendUp?'📈':'📉', trendUp?'var(--danger)':'var(--success)', `${trendPct}% ${trendUp?'more':'less'} than last month`, `${fmtReport(totalEur)} spent so far vs ${fmtReport(prevEur)} by this point in ${MONTHS[prevM-1]}.`));
-  }
-  insights.push(insightCard(topCat.icon, topCat.color, `${escHtml(topCat.label)} is your top category`, `${topCatPct}% of this month's spending — ${fmtReport(topCatEur)}.`));
-  if(budget>0){
-    const projectedEur=daysPassed>0?(totalEur/daysPassed)*daysInMonth:0;
-    const projectedReport=eurToReport(projectedEur);
-    const overPace=projectedReport>budget;
-    insights.push(insightCard(overPace?'⚠️':'✅', overPace?'var(--danger)':'var(--success)', overPace?'On pace to go over budget':'On pace to stay under budget', `At this rate you'll spend about ${fmt(projectedReport,primCur)} by month end (budget ${fmt(budget,primCur)}).`));
-  }
-  if(togetherEur>0){
-    insights.push(insightCard('🤝','var(--accent)', `${fmtReport(togetherEur)} spent together`, `${Math.round(togetherEur/totalEur*100)}% of this month's spending was shared.`));
-  }
-  insights.push(insightCard(catMap[biggest.cat]?.icon||'💳','var(--accent)', `Biggest expense: ${fmtReport(biggestEur)}`, `${escHtml(biggest.desc||catMap[biggest.cat]?.label||'Expense')}${biggest.date?` · ${fmtDate(biggest.date)}`:''}`));
-
-  $('report-insights').innerHTML = insights.length ? `<div class="insights-title">Insights</div>${insights.slice(0,4).join('')}` : '';
+  updateNotifBadge();
 }
 
 // ─── Activity (changes by other users) ───
@@ -2004,8 +2039,8 @@ window.skipPendingRecurring = async function(recId, idx) {
 
 // ─── Save Expense ───
 async function saveExpense() {
-  const amount=parseAmt($('amount-input').value);
-  if(!amount||amount<=0){showToast('⚠️ Enter an amount');return;}
+  const baseAmount=parseAmt($('amount-input').value);
+  if(!baseAmount||baseAmount<=0){showToast('⚠️ Enter an amount');return;}
   if(!selectedWho){showToast('⚠️ Select who paid');return;}
   const dateVal=$('date-input').value||today();
   if(dateVal>today()&&!confirm(`The date you entered (${fmtDate(dateVal)}) is in the future. Are you sure?`)){return;}
@@ -2013,9 +2048,12 @@ async function saveExpense() {
   const desc=$('desc-input').value.trim()||(catMap[selectedCat]?.label||selectedCat);
   commitTag('add');
   const merchant=$('merchant-input').value.trim();
+  const tipAmount=addTipOn?parseAmt($('tip-input').value):0;
+  const amount=getEffectiveAmount('add');
   const expData={amount,desc,cat:selectedCat,currency:selectedCur,date:dateVal,ts:Date.now(),addedBy:activeUserId};
   if(merchant) expData.merchant=merchant;
   if(addTags.length) expData.tags=addTags.slice();
+  if(tipAmount>0) expData.tip=tipAmount;
   if(selectedWho==='split'){
     const sel=splitDetails.filter(s=>s.selected);
     if(sel.length<2){showToast('⚠️ Select at least 2 people');return;}
@@ -2028,8 +2066,9 @@ async function saveExpense() {
   await fref(`expenses/${y}/${m}`).push(expData);
   showToast('✓ Saved!');
   closeAddModal();
-  addAmountStr=''; $('amount-input').value=''; $('desc-input').value=''; $('date-input').value=today();
+  addAmountStr=''; addActiveField='amount'; $('amount-input').value=''; $('desc-input').value=''; $('date-input').value=today();
   $('merchant-input').value=''; addTags=[]; renderTagChips('add');
+  resetAddTipUI();
   splitDetails=[]; $('split-panel').style.display='none';
   selectedWho=activeUsers()[0]?.id||null;
   buildWhoSelector('who-selector',selectedWho,'add');
@@ -2048,7 +2087,8 @@ function setupEditModal() {
   $('edit-scrim').addEventListener('click',closeEditModal);
   $('btn-edit-cancel').addEventListener('click',closeEditModal);
   $('btn-edit-save').addEventListener('click',saveEdit);
-  $('edit-amount').addEventListener('input',()=>{ if(editWho==='split') buildSplitRows('edit-split-user-rows','edit'); });
+  $('edit-amount').addEventListener('input',()=>{ if(editWho==='split') buildSplitRows('edit-split-user-rows','edit'); updateEditTipSummary(); });
+  $('edit-tip-input').addEventListener('input',()=>{ if(editWho==='split') buildSplitRows('edit-split-user-rows','edit'); updateEditTipSummary(); });
 }
 
 window.openEditModal=function(year,month,id) {
@@ -2060,8 +2100,16 @@ window.openEditModal=function(year,month,id) {
   if(!exp) return;
   editState={year,month,id};
   editCur=exp.currency||config.defaultCurrency||'AED';
-  $('edit-amount').value=exp.amount;
+  editTipOn=!!(exp.tip>0);
+  $('edit-tip-chip').classList.toggle('active',editTipOn);
+  $('edit-tip-chip').style.display=editTipOn?'none':'';
+  $('edit-tip-input').style.display=editTipOn?'inline-block':'none';
+  $('edit-tip-clear').style.display=editTipOn?'inline-block':'none';
+  $('edit-tip-input').value=exp.tip||'';
+  // amount shown for editing is the base (pre-tip) portion — tip is added back on save
+  $('edit-amount').value=exp.tip>0?round2(exp.amount-exp.tip):exp.amount;
   $('edit-amount-symbol').textContent=CURRENCIES[editCur].symbol;
+  updateEditTipSummary();
   document.querySelectorAll('#edit-currency-toggle .who-chip').forEach(b=>b.classList.toggle('active',b.dataset.cur===editCur));
   editCat=exp.cat||'other';
   buildCatGrid('edit-cat-grid',true);
@@ -2083,8 +2131,8 @@ function closeEditModal() { $('edit-scrim').classList.remove('open'); $('edit-mo
 
 async function saveEdit() {
   if(!editState) return;
-  const amount=parseAmt($('edit-amount').value);
-  if(!amount||amount<=0){showToast('⚠️ Enter an amount');return;}
+  const baseAmount=parseAmt($('edit-amount').value);
+  if(!baseAmount||baseAmount<=0){showToast('⚠️ Enter an amount');return;}
   const dateVal=$('edit-date').value||today();
   const [y,m]=dateVal.split('-').map(Number);
   const desc=$('edit-desc').value.trim()||(catMap[editCat]?.label||editCat);
@@ -2092,9 +2140,12 @@ async function saveEdit() {
   if(!editWho){showToast('⚠️ Select who paid');return;}
   const merchant=$('edit-merchant').value.trim();
   const {year,month,id}=editState;
+  const editTip = editTipOn ? parseAmt($('edit-tip-input').value) : 0;
+  const amount = getEffectiveAmount('edit');
   const expData={amount,desc,cat:editCat,currency:editCur,date:dateVal};
   expData.merchant = merchant || null;
   expData.tags = editTags.length ? editTags.slice() : null;
+  expData.tip = editTip > 0 ? editTip : null;
   if(editWho==='split'){
     const sel=editSplitDetails.filter(s=>s.selected);
     if(sel.length<2){showToast('⚠️ Select at least 2 people');return;}
@@ -2279,6 +2330,17 @@ function applyStatsFilters(items) {
 // Shared "By store" + "By tag" breakdowns (used by month and year stats).
 // amount is split-aware because applyStatsFilters already reduces split
 // expenses to the selected person's share when a person filter is active.
+function renderTipsCard(items, primCur) {
+  const card=$('tips-card'); if(!card) return;
+  const tipItems=items.filter(e=>e.tip>0);
+  if(!tipItems.length){ card.style.display='none'; return; }
+  const tipsEur=tipItems.reduce((s,e)=>s+toEur(e.tip,e.currency||primCur),0);
+  const tippedTotalEur=tipItems.reduce((s,e)=>s+toEur(e.amount,e.currency||primCur),0);
+  const pct=tippedTotalEur?Math.round(tipsEur/tippedTotalEur*100):0;
+  card.style.display='';
+  $('tips-total').innerHTML=`${fmtReport(tipsEur)}${secondarySpan(tipsEur,primCur)}`;
+  $('tips-sub').textContent=`${tipItems.length} tipped expense${tipItems.length!==1?'s':''} · ${pct}% of their total`;
+}
 function renderStoreTagBreakdowns(items, primCur, totalEur) {
   const byStore={};
   items.forEach(e=>{ if(e.merchant){ const k=e.merchant.trim(); if(k) byStore[k]=(byStore[k]||0)+toEur(e.amount,e.currency||primCur); } });
@@ -2340,6 +2402,7 @@ async function renderStats(year,month) {
   const rateAed=(1/fxToEur.AED).toFixed(2), rateUsd=(1/fxToEur.USD).toFixed(4);
   const fxLabel=fxFetched?`live · updated at ${fmtFxTime()}`:'offline fallback';
   $('fx-note').textContent=`Rates (${fxLabel}): 1 EUR = AED ${rateAed} / USD ${rateUsd}`;
+  renderTipsCard(items, primCur);
   renderStoreTagBreakdowns(items, primCur, totalEur);
   renderTrends(year,month);
 }
@@ -2388,6 +2451,7 @@ async function renderYearStats(year) {
   const rateAed=(1/fxToEur.AED).toFixed(2), rateUsd=(1/fxToEur.USD).toFixed(4);
   const fxLabel=fxFetched?`live · updated at ${fmtFxTime()}`:'offline fallback';
   $('fx-note').textContent=`Rates (${fxLabel}): 1 EUR = AED ${rateAed} / USD ${rateUsd}`;
+  renderTipsCard(allItems, primCur);
   renderStoreTagBreakdowns(allItems, primCur, totalEur);
   if($('trends-title')) $('trends-title').textContent=`Monthly trend (${year})`;
   if(trendsChart){trendsChart.destroy();trendsChart=null;}
@@ -2462,7 +2526,6 @@ async function saveCurrencySettings() {
   if($('view-home').classList.contains('active')) renderHome();
   if($('view-list').classList.contains('active')) renderListFiltered();
   if($('view-stats').classList.contains('active')) renderStats(statsYear,statsMonth);
-  if($('view-report').classList.contains('active')) renderReport();
 }
 
 function setupPinModeToggle() {
@@ -2904,7 +2967,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '15:11';
+const _THIS_VERSION = '06:47';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())
@@ -2941,6 +3004,23 @@ function checkUpdateOnGesture() {
       setTimeout(() => { if (!isTextInput(document.activeElement)) $('tab-bar')?.classList.remove('kb-hidden'); }, 50);
     }
   });
+})();
+
+// Chart.js tooltips on touch devices have no "hover away" to dismiss them —
+// a tapped point's tooltip otherwise stays on screen until another point is
+// tapped. Dismiss it on any tap/click outside the chart itself.
+(function setupChartTooltipDismiss() {
+  const dismiss = e => {
+    if(!homeSparkChart) return;
+    const canvas = homeSparkChart.canvas;
+    if(canvas && !canvas.contains(e.target)){
+      homeSparkChart.setActiveElements([]);
+      homeSparkChart.tooltip?.setActiveElements([], {x:0,y:0});
+      homeSparkChart.update();
+    }
+  };
+  document.addEventListener('touchstart', dismiss, {passive:true});
+  document.addEventListener('mousedown', dismiss);
 })();
 
 boot();

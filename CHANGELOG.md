@@ -5,6 +5,22 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.2.0] 2026-07-19 — Tips tracking, Home bento redesign, Report tab removed
+
+### New features
+- **Tip tracking** — an optional "Add tip" button sits right under the amount on both the Add screen and the Edit sheet; tapping it swaps the button for a tip field in the same spot. On Add it uses the same custom numpad (tap between the amount and tip fields to switch which one you're typing into — no device keyboard involved). Shows the running total at the same size as the main amount, plus what % of the bill the tip is, live as you type. The tip is folded into the expense's amount (so category/store/budget totals include it), while remaining visible on its own in Stats. Leaving the tip amount blank does not mark the expense as tipped
+- **Stats: Tips card** — total tips for the period, and what % of the *tipped expenses' own total* was tip (not % of all spending)
+- Editing an expense with a tip decomposes it back into base + tip so you can adjust either independently
+
+### Redesign
+- **Home rebuilt as a bento grid**, matching the old Report tab's tile design: total spent (with avg/day and expense count tucked into the same tile, secondary currency on its own line), budget ring, top-category ring, top 3 categories with bars sized by share of total spend, a daily-spend chart with a value axis, biggest expense and spent-together (as a two-tone gauge showing each person's share) as small side-by-side tiles, and recurring pending
+- **Report tab removed** — everything useful from it now lives on Home, so the tab (and its dedicated bento/insights code) was deleted
+
+### Fixes
+- **Future-dated expenses no longer skew "vs last month" and "avg / day"** — an expense entered ahead of time (e.g. rent dated the 15th) was counted in this month's total from the moment it was saved, while the previous month was correctly compared only up to today's date. Early in a month that made the comparison wildly wrong (e.g. "↑ 7500% vs last month" on the 1st). Both figures now only count expenses dated up to today; the headline total, budget and category shares still include everything committed for the month
+
+---
+
 ## [v3.1.0] 2026-07-19 — FAB-based Add flow, category management, split-edit fix
 
 ### Redesign
@@ -14,6 +30,7 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 - **Home: removed the Quick Add category shortcuts** — kept only the single "＋ Add Expense" button, later removed entirely once the FAB took over (see below)
 - **FAB only on Home/List** — the floating "+" button is hidden on Stats, Report and Settings, where adding an expense isn't the primary action
 - **Swipe between tabs** — swiping left/right anywhere on a screen (except charts, horizontal chip rows, inputs, or while a modal is open) moves to the next/previous tab in the bar, mirroring the tap animation
+- **Home rebuilt as a bento grid**, matching the Report tab's tile design: total spent (with avg/day and expense count tucked into the same tile), budget ring, top-category ring, top categories with bars, and recurring pending — replacing the old stacked list-card layout
 
 ### New features
 - **Settings: delete any category** — previously only custom categories could be deleted; now every category except "Other" can be removed. Existing expenses in a deleted category simply display as "Other" (nothing is lost)

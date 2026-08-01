@@ -92,6 +92,8 @@
     .eye-btn{background:transparent;border:none;padding:2px;margin-left:6px;cursor:pointer;color:inherit;opacity:.7;vertical-align:middle;line-height:0}
     .eye-btn:active{opacity:1}
     .eye-btn svg{width:15px;height:15px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .eye-btn.eye-lg svg{width:21px;height:21px}
+    .total-row{display:flex;align-items:center;gap:4px}
     .eye-btn .eye-off{display:none}
     body.amounts-hidden .eye-btn .eye-on{display:none}
     body.amounts-hidden .eye-btn .eye-off{display:block}
@@ -597,7 +599,7 @@
         <button class="btn-primary" onclick="exportCSV()" style="margin-top:0">Export to CSV</button>
         <button class="btn-primary" onclick="leaveFamily()" style="margin-top:10px;background:transparent;color:var(--danger);border:1.5px solid var(--danger)">Leave / Switch family</button>
         <button class="btn-primary" onclick="checkForUpdates()" style="margin-top:10px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)">🔄 Check for updates</button>
-        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.3.0</strong> · deployed <strong>2026-08-01 12:45</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
+        <p style="font-size:11px;color:var(--sub);margin-top:24px;text-align:center">Expenses App <strong>v3.3.1</strong> · deployed <strong>2026-08-01 13:24</strong> · <a href="https://github.com/protacis/claude-code-projects/blob/master/CHANGELOG.md" target="_blank" style="color:var(--accent);text-decoration:none">Changelog</a></p>
       </div></div>
     </div>
     <!-- About -->
@@ -1832,18 +1834,13 @@ async function renderHome() {
 
   const tiles=[];
   tiles.push(`<div class="bento-tile span2 pink">
-    <div class="bento-split-row">
-      <div style="min-width:0">
-        <div class="bento-label">Total spent — ${MONTHS[homeM-1]}<button class="eye-btn" onclick="toggleAmountPrivacy()" aria-label="Show or hide amounts"><svg class="eye-on" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5c1.9 0 3.5.6 4.9 1.4M22 12s-3.6 6.5-10 6.5c-1.9 0-3.6-.6-4.9-1.4"/><path d="M4 4l16 16"/></svg></button></div>
-        <div class="bento-value money" style="font-size:23px;white-space:nowrap">${fmt(totalPrim,primCur)}</div>
-        ${secAmt?`<div class="bento-sub money" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
-        ${compHtml}
-      </div>
-      <div class="bento-corner-stats">
-        <div class="bento-corner-stat"><span class="bento-value money" style="font-size:16px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
-        <div class="bento-corner-stat"><span class="bento-value" style="font-size:16px">${items.length}</span><span class="bento-label" style="margin-top:0">expense${items.length!==1?'s':''}</span></div>
-      </div>
+    <div class="bento-label">Total spent — ${MONTHS[homeM-1]}</div>
+    <div class="total-row">
+      <span class="bento-value money" style="font-size:30px;white-space:nowrap">${fmt(totalPrim,primCur)}</span>
+      <button class="eye-btn eye-lg" onclick="toggleAmountPrivacy()" aria-label="Show or hide amounts"><svg class="eye-on" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5c1.9 0 3.5.6 4.9 1.4M22 12s-3.6 6.5-10 6.5c-1.9 0-3.6-.6-4.9-1.4"/><path d="M4 4l16 16"/></svg></button>
     </div>
+    ${secAmt?`<div class="bento-sub money" style="margin-top:2px;font-weight:500;color:var(--sub)">${secAmt}</div>`:''}
+    ${compHtml}
   </div>`);
   if(budget>0){
     tiles.push(`<div class="bento-tile">
@@ -1857,18 +1854,10 @@ async function renderHome() {
       </div>
     </div>`);
   }
-  if(topCat){
-    tiles.push(`<div class="bento-tile">
-      <div class="bento-label" style="margin-bottom:8px">Top category</div>
-      <div class="bento-ring-row">
-        <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
-        <div class="bento-ring-text">
-          <div class="bento-value">${escHtml(topCat.label)}</div>
-          <div class="bento-sub" style="margin-top:0">${topCatPct}%</div>
-        </div>
-      </div>
-    </div>`);
-  }
+  tiles.push(`<div class="bento-tile">
+    <div class="bento-corner-stat" style="justify-content:flex-start"><span class="bento-value money" style="font-size:19px">${fmt(avgDay,primCur)}</span><span class="bento-label" style="margin-top:0">avg / day</span></div>
+    <div class="bento-corner-stat" style="justify-content:flex-start;margin-top:10px"><span class="bento-value" style="font-size:19px">${items.length}</span><span class="bento-label" style="margin-top:0">expense${items.length!==1?'s':''}</span></div>
+  </div>`);
   if(topCats.length){
     tiles.push(`<div class="bento-tile span2">
       <div class="bento-label" style="margin-bottom:8px">Top 3 categories</div>
@@ -1888,6 +1877,18 @@ async function renderHome() {
       <div class="bento-value money" style="font-size:18px">${fmt(biggestPrim,primCur)}</div>
       <div class="bento-label">biggest expense</div>
       <div class="bento-sub" style="margin-top:2px;color:var(--sub);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(biggest.desc||catMap[biggest.cat]?.label||'')}</div>
+    </div>`);
+  }
+  if(topCat){
+    tiles.push(`<div class="bento-tile">
+      <div class="bento-label" style="margin-bottom:8px">Top category</div>
+      <div class="bento-ring-row">
+        <div class="bento-ring-wrap" style="background:conic-gradient(${topCat.color} ${Math.round(topCatPct*3.6)}deg, var(--surface2) 0deg)"><div class="bento-ring-inner">${topCat.icon}</div></div>
+        <div class="bento-ring-text">
+          <div class="bento-value">${escHtml(topCat.label)}</div>
+          <div class="bento-sub" style="margin-top:0">${topCatPct}%</div>
+        </div>
+      </div>
     </div>`);
   }
   if(togetherPrim>0){
@@ -1920,7 +1921,7 @@ async function renderHome() {
 
   $('home-content').innerHTML=`
     <div class="bento-grid">${tiles.join('')}</div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.3.0 · 2026-08-01 12:45</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">v3.3.1 · 2026-08-01 13:24</p>
   `;
 
   if(daysPassed>1 && $('home-spark')){
@@ -2994,7 +2995,7 @@ async function startDemo() {
   if(r){ localStorage.removeItem('_rejoin'); localStorage.setItem('familyId',r); }
 })();
 
-const _THIS_VERSION = '12:45';
+const _THIS_VERSION = '13:24';
 let _latestVersion = null;
 fetch('/version.json?t=' + Date.now(), { cache: 'no-store' })
   .then(r => r.json())

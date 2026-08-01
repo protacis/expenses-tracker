@@ -5,6 +5,15 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.3.1] 2026-08-01 — Home tile layout tweaks
+
+### Changes
+- **Avg / day and expense count are now their own tile**, sitting next to Budget (where Top category used to be), instead of being tucked into the corner of the total tile
+- **Top category moved down** next to Biggest expense
+- **The eye toggle now sits right next to the total amount** instead of beside the small label, so it's easier to hit — and with the corner stats gone, the total itself is rendered larger
+
+---
+
 ## [v3.3.0] 2026-08-01 — Hide amounts (privacy eye toggle)
 
 ### New features

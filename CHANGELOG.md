@@ -5,6 +5,16 @@ Format: `[vX.Y.Z] YYYY-MM-DD — Description`
 
 ---
 
+## [v3.5.0] 2026-08-02 — Daily spend chart: last-month comparison + real axes
+
+### Changes
+- **The daily spend chart now overlays last month as a dashed line**, so you can see at a glance whether a day ran higher or lower than the same day a month ago. A small legend above the chart names both months
+- **Both months are plotted across the full width of the current month** — the current month's line stops at today (with a dot marking it), last month runs the whole way as the reference
+- **Readable axes** — the day axis is labelled at the 1st, mid-month and last day; the amount axis shows three rounded ticks (e.g. `2.0k`). Taller chart (132px) and a tooltip that lists both months for the day you touch
+- **The chart no longer disappears at the start of a month.** It used to be hidden until day 2 (a single point draws no line); now it shows as soon as either month has any spending, so the dashed reference is there from day 1
+
+---
+
 ## [v3.4.0] 2026-08-01 — Customisable Home (drag to reorder, hide tiles)
 
 ### New features
